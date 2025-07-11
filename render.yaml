@@ -15,7 +15,7 @@ services:
     rootDir: Backend # Указываем, что код бэкенда лежит в папке 'Backend'
     branch: main
     buildCommand: "npm install"
-    startCommand: "node index.js"
+    startCommand: "node server.js"
     envVars:
       - key: DATABASE_URL
         fromService:

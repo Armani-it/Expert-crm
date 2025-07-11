@@ -1,4 +1,25 @@
-{"level":"error","message":"Таблица құру қатесі: SASL: SCRAM-SERVER-FIRST-MESSAGE: client password must be a string","stack":"Error: SASL: SCRAM-SERVER-FIRST-MESSAGE: client password must be a string\n    at C:\\Users\\gabba\\Desktop\\akcent-crm-main\\backend\\node_modules\\pg-pool\\index.js:45:11\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async initializeDatabase (C:\\Users\\gabba\\Desktop\\akcent-crm-main\\backend\\server.js:176:5)","timestamp":"2025-07-05T07:25:15.051Z"}
-{"level":"info","message":"Сервер 3001 портында іске қосылды","timestamp":"2025-07-05T07:25:15.055Z"}
-{"ip":"::1","level":"warn","message":"Токен табылмады","timestamp":"2025-07-05T07:25:23.704Z"}
-{"ip":"::1","level":"warn","message":"Токен табылмады","timestamp":"2025-07-05T07:47:01.053Z"}
+// Этот код предназначен для работы с базой данных PostgreSQL на Render.
+const express = require('express');
+const { Pool } = require('pg');
+const cors = require('cors');
+
+const app = express();
+const port = process.env.PORT || 3001;
+
+app.use(cors());
+app.use(express.json());
+
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false
+  }
+});
+
+// ... (весь остальной код, который я давал ранее) ...
+
+app.listen(port, () => {
+  initializeDatabase().then(() => {
+    console.log(`Server is running on port ${port}`);
+  });
+});
