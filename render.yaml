@@ -1,0 +1,24 @@
+services:
+  # Сервис базы данных PostgreSQL
+  - type: pserv
+    name: expert-crm-db
+    plan: free
+    region: frankfurt
+
+  # Сервис для бэкенда (Node.js)
+  - type: web
+    name: expert-crm-backend
+    plan: free
+    region: frankfurt
+    runtime: node
+    repo: https://github.com/Armani-it/Expert-crm.git # URL вашего репозитория
+    rootDir: Backend # Указываем, что код бэкенда лежит в папке 'Backend'
+    branch: main
+    buildCommand: "npm install"
+    startCommand: "node index.js"
+    envVars:
+      - key: DATABASE_URL
+        fromService:
+          type: pserv
+          name: expert-crm-db
+          property: connectionString
