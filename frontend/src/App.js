@@ -98,7 +98,7 @@ const getRankColor = (index) => {
 }
 
 const getRankIcon = (index) => {
-  const icons = ["👑", "🥈", "�"]
+  const icons = ["👑", "🥈", "🥉"]
   return icons[index] || index + 1
 }
 
@@ -3360,4 +3360,3 @@ export default function App() {
     </div>
   )
 }
-�
