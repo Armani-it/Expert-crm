@@ -1,7 +1,6 @@
-// App.js
 "use client"
 
-import React, { useState, useEffect, useMemo, useCallback } from "react"
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import {
   X,
   Calendar,
@@ -29,8 +28,6 @@ import {
   Lock,
   Unlock,
   Info,
-  Trash2,
-  AlertTriangle,
 } from "lucide-react"
 
 import {
@@ -50,43 +47,36 @@ import {
 } from "recharts"
 
 // =================================================================
-//                      CONFIGURATION
+//                            CONFIGURATION
 // =================================================================
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx2XB36W6HvU4AtQx1wbT3fBYTBqfQHPaqRTee7D--KlMPd1gi6sLFOscBtTo9Xt1Re/exec";
-
+// !!! ВАЖНО: Замените этот URL на URL вашего бэкенда, который вы получили от Render
+const API_URL = "https://backend-expert-crm.onrender.com"; 
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxXA8JQ0sQ1gxFQYGhgo995CFq3CrbgSPMnkHez0Up7PzWhsoFAbQMj3CoI15dJmEU_Uw/exec";
 
 // =================================================================
-//                      DEMO DATA & CONSTANTS
+//                         DEMO DATA & CONSTANTS
 // =================================================================
-
-// Consistent user roles for both frontend and backend logic.
-// 'super_admin' (Arman) can delete.
-// 'admin' (Admin) can do everything else but not delete.
 const demoUsers = [
-  // --- Администраторы ---
   { id: "1", username: "admin", password: "password123", role: "admin", name: "Admin" },
-  { id: "18", username: "arman", password: "password123", role: "super_admin", name: "Арман" },
-
-  // --- Учителя ---
-  { id: "2", username: "kymbat", password: "password123", role: "teacher", name: "Кымбат" },
-  { id: "3", username: "dilnaz", password: "password123", role: "teacher", name: "Дильназ" },
-  { id: "4", username: "sabina", password: "password123", role: "teacher", name: "Сабина" },
-  { id: "5", username: "nurkabyl", password: "password123", role: "teacher", name: "Нуркабыл" },
-  { id: "6", username: "sayazhan", password: "password123", role: "teacher", name: "Саяжан" },
-  { id: "7", username: "nursulu", password: "password123", role: "teacher", name: "Нурсулу" },
-  { id: "8", username: "gaziza", password: "password123", role: "teacher", name: "Газиза" },
-  { id: "9", username: "daniyal", password: "password123", role: "teacher", name: "Даниал" },
-  { id: "10", username: "gulzhan", password: "password123", role: "teacher", name: "Гульжан" },
-  { id: "11", username: "erkemai", password: "password123", role: "teacher", name: "Еркемай" },
-  { id: "12", username: "zhanargul", password: "password123", role: "teacher", name: "Жанаргуль" },
-
-  // --- РОПы ---
-  { id: "13", username: "daniyal_r", password: "password123", role: "rop", name: "Даниал РОП" },
-  { id: "14", username: "damir", password: "password123", role: "rop", name: "Дамир" },
-  { id: "15", username: "nazereke", password: "password123", role: "rop", name: "Назерке" },
-  { id: "16", username: "abylai", password: "password123", role: "rop", name: "Абылай" },
-  { id: "17", username: "aiaru", password: "password123", role: "rop", name: "Айару" },
-  { id: "19", username: "sayakhat", password: "password123", role: "rop", name: "Саяхат" },
+  // ROPs
+  { id: "2", username: "danial", password: "password123", role: "rop", name: "Даниал" },
+  { id: "3", username: "damir", password: "password123", role: "rop", name: "Дамир" },
+  { id: "4", username: "nazerke", password: "password123", role: "rop", name: "Назерке" },
+  { id: "5", username: "abylay", password: "password123", role: "rop", name: "Абылай" },
+  { id: "6", username: "aiaru", password: "password123", role: "rop", name: "Айару" },
+  { id: "7", username: "sayakhat", password: "password123", role: "rop", name: "Саяхат" },
+  // Teachers
+  { id: "8", username: "kymbat", password: "password123", role: "teacher", name: "Қымбат" },
+  { id: "9", username: "dilnaz", password: "password123", role: "teacher", name: "Дильназ" },
+  { id: "10", username: "sabina", password: "password123", role: "teacher", name: "Сабина" },
+  { id: "11", username: "nurkabyl", password: "password123", role: "teacher", name: "Нұрқабыл" },
+  { id: "12", username: "sayazhan", password: "password123", role: "teacher", name: "Саяжан" },
+  { id: "13", username: "nursulu", password: "password123", role: "teacher", name: "Нұрсұлу" },
+  { id: "14", username: "gaziza", password: "password123", role: "teacher", name: "Ғазиза" },
+  { id: "15", username: "danial_teacher", password: "password123", role: "teacher", name: "Даниал" },
+  { id: "16", username: "gulzhan", password: "password123", role: "teacher", name: "Гульжан" },
+  { id: "17", username: "erkemai", password: "password123", role: "teacher", name: "Еркемай" },
+  { id: "18", username: "zhanargul", password: "password123", role: "teacher", name: "Жанаргуль" },
 ]
 
 const ALL_SOURCES = [
@@ -99,6 +89,7 @@ const ALL_SOURCES = [
   "Телеграм",
   "Блогер",
   "База-лид",
+  "Деңгей анықтау",
 ]
 
 const generateTimeSlots = () => {
@@ -118,28 +109,29 @@ const generateTimeSlots = () => {
 }
 
 // =================================================================
-//                       HELPER FUNCTIONS
+//                           HELPER FUNCTIONS
 // =================================================================
 
 const formatPhoneNumber = (phoneStr) => {
-  if (!phoneStr) return ""
-  let cleaned = ('' + phoneStr).replace(/\D/g, '')
-
+  if (!phoneStr) return "";
+  let cleaned = ('' + phoneStr).replace(/\D/g, '');
+  
   if (cleaned.length === 11 && cleaned.startsWith('8')) {
-    cleaned = '7' + cleaned.slice(1)
+    cleaned = '7' + cleaned.slice(1);
   }
 
   if (cleaned.length === 10 && !cleaned.startsWith('7')) {
-    cleaned = '7' + cleaned
+      cleaned = '7' + cleaned;
   }
 
-  const match = cleaned.match(/^7(\d{3})(\d{3})(\d{2})(\d{2})$/)
+  const match = cleaned.match(/^7(\d{3})(\d{3})(\d{2})(\d{2})$/);
   if (match) {
-    return `+7 (${match[1]}) ${match[2]}-${match[3]}-${match[4]}`
+    return `+7 (${match[1]}) ${match[2]}-${match[3]}-${match[4]}`;
   }
+  
+  return phoneStr;
+};
 
-  return phoneStr
-}
 
 const getRankColor = (index) => {
   const colors = ["from-yellow-400 to-yellow-600", "from-gray-400 to-gray-600", "from-orange-400 to-orange-600"]
@@ -152,19 +144,19 @@ const getRankIcon = (index) => {
 }
 
 const getAppointmentColorForStatus = (status) => {
-  switch (status) {
-    case "Оплата":
-      return "bg-gradient-to-r from-green-500 to-green-600 text-white"
-    case "Клиент отказ":
-    case "Каспий отказ":
-      return "bg-gradient-to-r from-red-500 to-red-600 text-white"
-    default:
-      return "bg-gradient-to-r from-blue-500 to-blue-600 text-white"
-  }
+    switch (status) {
+      case "Оплата":
+        return "bg-gradient-to-r from-green-500 to-green-600 text-white"
+      case "Клиент отказ":
+      case "Каспий отказ":
+        return "bg-gradient-to-r from-red-500 to-red-600 text-white"
+      default:
+        return "bg-gradient-to-r from-blue-500 to-blue-600 text-white"
+    }
 }
 
 // =================================================================
-//                       COMMON COMPONENTS
+//                           COMMON COMPONENTS
 // =================================================================
 
 const Spinner = () => (
@@ -175,24 +167,24 @@ const Spinner = () => (
 )
 
 const Toast = ({ message, type, isVisible }) => {
-  let bgColor = 'bg-gradient-to-r from-red-500 to-red-600' // default to error
+  let bgColor = 'bg-gradient-to-r from-red-500 to-red-600'; // default to error
   if (type === 'success') {
-    bgColor = 'bg-gradient-to-r from-green-500 to-green-600'
+    bgColor = 'bg-gradient-to-r from-green-500 to-green-600';
   } else if (type === 'info') {
-    bgColor = 'bg-gradient-to-r from-blue-500 to-blue-600'
+    bgColor = 'bg-gradient-to-r from-blue-500 to-blue-600';
   }
 
   return (
-    <div
-      className={`fixed top-6 right-6 px-6 py-4 rounded-xl text-white font-medium shadow-2xl transition-all duration-300 transform z-50 ${
-        isVisible ? "opacity-100 translate-y-0 scale-100" : "opacity-0 -translate-y-4 scale-95 pointer-events-none"
-      } ${bgColor}`}
-    >
-      <div className="flex items-center gap-3">
-        {type === "success" ? <CheckCircle size={20} /> : type === 'info' ? <Info size={20} /> : <XCircle size={20} />}
-        <span className="font-medium">{message}</span>
-      </div>
+  <div
+    className={`fixed top-6 right-6 px-4 py-3 md:px-6 md:py-4 rounded-xl text-white font-medium shadow-2xl transition-all duration-300 transform z-50 ${
+      isVisible ? "opacity-100 translate-y-0 scale-100" : "opacity-0 -translate-y-4 scale-95 pointer-events-none"
+    } ${bgColor}`}
+  >
+    <div className="flex items-center gap-3">
+      {type === "success" ? <CheckCircle size={20} /> : type === 'info' ? <Info size={20} /> : <XCircle size={20} />}
+      <span className="font-medium text-sm md:text-base">{message}</span>
     </div>
+  </div>
   )
 }
 
@@ -223,38 +215,8 @@ const Modal = ({ isVisible, onClose, children, size = "lg" }) => {
   )
 }
 
-// New component to replace window.confirm
-const ConfirmModal = ({ isVisible, onClose, onConfirm, title, message }) => (
-    <Modal isVisible={isVisible} onClose={onClose} size="md">
-        <div className="p-8">
-            <div className="text-center">
-                <div className="w-20 h-20 bg-gradient-to-r from-red-100 to-yellow-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <AlertTriangle className="w-10 h-10 text-red-500" />
-                </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-3">{title}</h3>
-                <p className="text-gray-600 mb-8 leading-relaxed">{message}</p>
-            </div>
-            <div className="flex justify-end gap-4">
-                <button
-                    onClick={onClose}
-                    className="flex-1 px-6 py-3 bg-white border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors font-semibold"
-                >
-                    Отмена
-                </button>
-                <button
-                    onClick={onConfirm}
-                    className="flex-1 px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all font-semibold shadow-lg"
-                >
-                    Подтвердить
-                </button>
-            </div>
-        </div>
-    </Modal>
-);
-
-
 // =================================================================
-//                       FEATURE COMPONENTS
+//                          FEATURE COMPONENTS
 // =================================================================
 
 const PlanModal = ({ isVisible, onClose, ropList, plans, onSavePlans }) => {
@@ -277,7 +239,7 @@ const PlanModal = ({ isVisible, onClose, ropList, plans, onSavePlans }) => {
 
   const handleSave = async () => {
     setIsSaving(true)
-    await onSavePlans(localPlans)
+    await onSavePlans(localPlans) // Эта функция пока работает локально
     setIsSaving(false)
     onClose()
   }
@@ -401,7 +363,7 @@ const DetailsModal = ({ entry, onClose, onSave, showToast, readOnly = false }) =
     const isRescheduled = currentStatus === "Перенос"
 
     await onSave(entry.id, {
-      ...entry,
+      ...entry, // Передаем все поля, чтобы не потерять данные
       status: currentStatus,
       trialDate: trialDate,
       assignedTeacher: isRescheduled ? null : entry.assignedTeacher,
@@ -588,8 +550,8 @@ const DetailsModal = ({ entry, onClose, onSave, showToast, readOnly = false }) =
                         className="w-full p-3 border border-emerald-300 rounded-xl bg-white focus:ring-2 focus:ring-emerald-500"
                       >
                         <option value="">Не выбрано</option>
-                        <option value="Индивидуально">Индивидуально</option>
-                        <option value="В группе">В группе</option>
+                        <option value="Жеке">Жеке</option>
+                        <option value="Топпен">Топпен</option>
                       </select>
                     </div>
                     <div>
@@ -709,49 +671,54 @@ const LoginModal = ({ isVisible, onClose, onLogin }) => {
 }
 
 // =================================================================
-//                       VIEW COMPONENTS
+//                            VIEW COMPONENTS
 // =================================================================
 
 const FormPage = ({ onFormSubmit, ropList, showToast, onShowRating, onShowAdminLogin, onShowSchedule }) => {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showSuccess, setShowSuccess] = useState(false)
-  const [phone, setPhone] = useState("")
+  const [phone, setPhone] = useState("");
 
   const handlePhoneInputChange = (e) => {
-    const rawValue = e.target.value
-    let digits = rawValue.replace(/\D/g, '')
+    const rawValue = e.target.value;
+    let digits = rawValue.replace(/\D/g, '');
 
     if (digits.length === 0) {
-      setPhone("")
-      return
+      setPhone("");
+      return;
     }
 
+    // Handle Kazakhstan/Russia country codes (8 -> 7)
     if (digits.startsWith('8')) {
-      digits = '7' + digits.slice(1)
+      digits = '7' + digits.slice(1);
     }
-
+    
+    // Ensure the number starts with '7'
     if (!digits.startsWith('7')) {
-      digits = '7' + digits
+      digits = '7' + digits;
     }
 
-    digits = digits.slice(0, 11)
+    // Limit to 11 digits (7 + 10)
+    digits = digits.slice(0, 11);
 
-    let formatted = `+${digits[0]}`
+    // Apply the formatting mask
+    let formatted = `+${digits[0]}`;
     if (digits.length > 1) {
-      formatted += ` (${digits.slice(1, 4)}`
+        formatted += ` (${digits.slice(1, 4)}`;
     }
     if (digits.length >= 5) {
-      formatted += `) ${digits.slice(4, 7)}`
+        formatted += `) ${digits.slice(4, 7)}`;
     }
     if (digits.length >= 8) {
-      formatted += `-${digits.slice(7, 9)}`
+        formatted += `-${digits.slice(7, 9)}`;
     }
     if (digits.length >= 10) {
-      formatted += `-${digits.slice(9, 11)}`
+        formatted += `-${digits.slice(9, 11)}`;
     }
+    
+    setPhone(formatted);
+  };
 
-    setPhone(formatted)
-  }
 
   const handleFormSubmit = async (e) => {
     e.preventDefault()
@@ -759,7 +726,7 @@ const FormPage = ({ onFormSubmit, ropList, showToast, onShowRating, onShowAdminL
 
     const formData = new FormData(e.target)
     const data = Object.fromEntries(formData.entries())
-    data.phone = phone
+    data.phone = phone; // Используем отформатированный номер из состояния
 
     if (!data.rop) {
       showToast("Пожалуйста, выберите РОП", "error")
@@ -771,7 +738,7 @@ const FormPage = ({ onFormSubmit, ropList, showToast, onShowRating, onShowAdminL
 
     setIsSubmitting(false)
     e.target.reset()
-    setPhone("")
+    setPhone("");
     setShowSuccess(true)
   }
 
@@ -792,7 +759,7 @@ const FormPage = ({ onFormSubmit, ropList, showToast, onShowRating, onShowAdminL
             className="flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold rounded-xl shadow-lg hover:from-blue-600 hover:to-blue-700 transition-all"
           >
             <TrendingUp className="w-5 h-5" />
-            Результаты команды
+            Команданың нәтижесі
           </button>
         </div>
         <div className="bg-white rounded-3xl shadow-xl border border-gray-100">
@@ -969,15 +936,15 @@ const DistributionView = ({
 }) => {
   const [draggedItem, setDraggedItem] = useState(null)
   const [dragOverCell, setDragOverCell] = useState(null)
-  const [selectedEntryForMobile, setSelectedEntryForMobile] = useState(null)
-  const [cellToBlock, setCellToBlock] = useState(null)
+  const [selectedEntryForMobile, setSelectedEntryForMobile] = useState(null);
+  const [cellToBlock, setCellToBlock] = useState(null);
 
   const isMobile = useMemo(() => {
     if (typeof window !== 'undefined') {
-      return window.innerWidth < 768
+      return window.innerWidth < 768;
     }
-    return false
-  }, [])
+    return false;
+  }, []);
 
   const handleDragStart = (e, entry) => {
     if (readOnly || isMobile) return
@@ -1017,76 +984,77 @@ const DistributionView = ({
   const handleDragLeave = (e) => {
     if (!readOnly && !isMobile) setDragOverCell(null)
   }
-
+  
   const handleEntryClick = (entry) => {
     if (readOnly) {
-      onOpenDetails(entry, true)
-      return
+        onOpenDetails(entry, true);
+        return;
     }
     if (isMobile) {
       if (selectedEntryForMobile?.id === entry.id) {
-        setSelectedEntryForMobile(null) // Deselect
+        setSelectedEntryForMobile(null); // Deselect
       } else {
-        setSelectedEntryForMobile(entry) // Select
+        setSelectedEntryForMobile(entry); // Select
       }
     } else {
-      onOpenDetails(entry, readOnly)
+        onOpenDetails(entry, readOnly);
     }
-  }
+  };
 
   const handleCellClick = (teacher, time) => {
-    if (readOnly) return
-    const cellKey = `${selectedDate}_${teacher}_${time}`
-    const isCellBlocked = blockedSlots.some((slot) => slot.id === cellKey)
-    const isCellOccupied = entries.some(e => e.assignedTeacher === teacher && e.assignedTime === time && e.trialDate === selectedDate)
+    if (readOnly) return;
+    const cellKey = `${selectedDate}_${teacher}_${time}`;
+    const isCellBlocked = blockedSlots.some((slot) => slot.id === cellKey);
+    const isCellOccupied = entries.some(e => e.assignedTeacher === teacher && e.assignedTime === time && e.trialDate === selectedDate);
 
     if (isMobile) {
-      if (selectedEntryForMobile) {
-        // Logic for placing an entry
-        if (!isCellBlocked && !isCellOccupied) {
-          onUpdateEntry(selectedEntryForMobile.id, {
-            ...selectedEntryForMobile,
-            assignedTeacher: teacher,
-            assignedTime: time,
-            status: "Назначен",
-            trialDate: selectedDate,
-          })
-          setSelectedEntryForMobile(null)
-          setCellToBlock(null)
+        if (selectedEntryForMobile) {
+            // Logic for placing an entry
+            if (!isCellBlocked && !isCellOccupied) {
+                onUpdateEntry(selectedEntryForMobile.id, {
+                    ...selectedEntryForMobile,
+                    assignedTeacher: teacher,
+                    assignedTime: time,
+                    status: "Назначен",
+                    trialDate: selectedDate,
+                });
+                setSelectedEntryForMobile(null);
+                setCellToBlock(null);
+            }
+        } else {
+            // Logic for blocking a cell (double tap)
+            if (!isCellOccupied) {
+                if (cellToBlock === cellKey) {
+                    onToggleBlockSlot(selectedDate, teacher, time);
+                    setCellToBlock(null);
+                } else {
+                    setCellToBlock(cellKey);
+                    showToast("Нажмите еще раз для блокировки", "info");
+                    setTimeout(() => {
+                        setCellToBlock(prev => (prev === cellKey ? null : prev));
+                    }, 3000);
+                }
+            }
         }
-      } else {
-        // Logic for blocking a cell (double tap)
-        if (!isCellOccupied) {
-          if (cellToBlock === cellKey) {
-            onToggleBlockSlot(selectedDate, teacher, time)
-            setCellToBlock(null)
-          } else {
-            setCellToBlock(cellKey)
-            showToast("Нажмите еще раз для блокировки", "info")
-            setTimeout(() => {
-              setCellToBlock(prev => (prev === cellKey ? null : prev))
-            }, 3000)
-          }
-        }
-      }
     } else {
-      // Desktop logic (single click to block)
-      if (!isCellOccupied) {
-        onToggleBlockSlot(selectedDate, teacher, time)
-      }
+        // Desktop logic (single click to block)
+        if (!isCellOccupied) {
+            onToggleBlockSlot(selectedDate, teacher, time);
+        }
     }
-  }
+  };
+
 
   const today = new Date().toISOString().split("T")[0]
 
   const unassignedEntries = useMemo(() => {
     return entries.filter((e) => {
-      const isUnassigned = !e.assignedTeacher
-      const hasNoStatusOrPending = !e.status || e.status === "Ожидает"
-      const isFutureOrToday = !e.trialDate || e.trialDate >= today
-      return isUnassigned && hasNoStatusOrPending && isFutureOrToday
-    })
-  }, [entries, today])
+      const isUnassigned = !e.assignedTeacher;
+      const hasNoStatusOrPending = !e.status || e.status === "Ожидает"; // ИСПРАВЛЕНО: "Перенос" удален
+      const isFutureOrToday = !e.trialDate || e.trialDate >= today;
+      return isUnassigned && hasNoStatusOrPending && isFutureOrToday;
+    });
+  }, [entries, today]);
 
   const rescheduledEntries = useMemo(() => {
     return entries.filter((e) => {
@@ -1129,108 +1097,110 @@ const DistributionView = ({
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {!readOnly && (
-          <div className="lg:col-span-1 space-y-6">
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm">
-              <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50">
-                <h3 className="font-bold text-lg text-gray-900 flex items-center gap-3">
-                  <div className="w-4 h-4 bg-blue-400 rounded-full animate-pulse"></div>Новые заявки
-                  <span className="ml-auto bg-gradient-to-r from-blue-500 to-indigo-500 text-white text-sm font-bold px-3 py-1 rounded-full">
-                    {unassignedEntries.length}
-                  </span>
-                </h3>
-              </div>
-              <div className="p-6">
-                <div className="space-y-4 max-h-[40vh] overflow-y-auto">
-                  {unassignedEntries.length > 0 ? (
-                    unassignedEntries.map((entry) => (
-                      <div
-                        key={entry.id}
-                        draggable={!readOnly && !isMobile}
-                        onDragStart={(e) => handleDragStart(e, entry)}
-                        onClick={() => handleEntryClick(entry)}
-                        className={`p-4 bg-gradient-to-br from-blue-50 to-indigo-50 border-2 rounded-xl transition-all ${
-                          !readOnly ? "cursor-pointer" : ""
-                        } ${
-                          !readOnly && !isMobile ? "cursor-grab active:cursor-grabbing hover:shadow-lg hover:from-blue-100 hover:to-indigo-100 hover:border-blue-300 transform hover:-translate-y-1" : ""
-                        } ${draggedItem?.id === entry.id ? "opacity-50 scale-95 rotate-2" : ""}
-                          ${selectedEntryForMobile?.id === entry.id ? "border-blue-500 ring-2 ring-blue-500" : "border-blue-200"}`}
-                      >
-                        <div className="flex items-center justify-between mb-2">
-                          <p className="font-bold text-gray-900 text-sm">{entry.clientName}</p>
-                          <div className="text-gray-400">
-                            <ArrowLeft className="w-4 h-4" />
+          <div className="lg:col-span-1">
+            <div className="lg:sticky lg:top-24 space-y-6 max-h-[calc(100vh-7rem)] overflow-y-auto p-1 rounded-2xl">
+              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm">
+                <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50">
+                  <h3 className="font-bold text-lg text-gray-900 flex items-center gap-3">
+                    <div className="w-4 h-4 bg-blue-400 rounded-full animate-pulse"></div>Новые заявки
+                    <span className="ml-auto bg-gradient-to-r from-blue-500 to-indigo-500 text-white text-sm font-bold px-3 py-1 rounded-full">
+                      {unassignedEntries.length}
+                    </span>
+                  </h3>
+                </div>
+                <div className="p-6">
+                  <div className="space-y-4 max-h-[40vh] overflow-y-auto">
+                    {unassignedEntries.length > 0 ? (
+                      unassignedEntries.map((entry) => (
+                        <div
+                          key={entry.id}
+                          draggable={!readOnly && !isMobile}
+                          onDragStart={(e) => handleDragStart(e, entry)}
+                          onClick={() => handleEntryClick(entry)}
+                          className={`p-4 bg-gradient-to-br from-blue-50 to-indigo-50 border-2 rounded-xl transition-all ${
+                            !readOnly ? "cursor-pointer" : ""
+                          } ${
+                            !readOnly && !isMobile ? "cursor-grab active:cursor-grabbing hover:shadow-lg hover:from-blue-100 hover:to-indigo-100 hover:border-blue-300 transform hover:-translate-y-1" : ""
+                          } ${draggedItem?.id === entry.id ? "opacity-50 scale-95 rotate-2" : ""}
+                            ${selectedEntryForMobile?.id === entry.id ? "border-blue-500 ring-2 ring-blue-500" : "border-blue-200"}`}
+                        >
+                          <div className="flex items-center justify-between mb-2">
+                            <p className="font-bold text-gray-900 text-sm">{entry.clientName}</p>
+                            <div className="text-gray-400">
+                              <ArrowLeft className="w-4 h-4" />
+                            </div>
                           </div>
+                          <p className="text-xs text-gray-600 mb-2 flex items-center gap-1">
+                            <Clock className="w-3 h-3" />
+                            {entry.trialDate} {entry.trialTime}
+                          </p>
+                          <p className="text-xs text-blue-700 bg-blue-200 px-2 py-1 rounded-full inline-flex items-center gap-1 font-semibold">
+                            <Users className="w-3 h-3" />
+                            {entry.rop}
+                          </p>
                         </div>
-                        <p className="text-xs text-gray-600 mb-2 flex items-center gap-1">
-                          <Clock className="w-3 h-3" />
-                          {entry.trialDate} {entry.trialTime}
-                        </p>
-                        <p className="text-xs text-blue-700 bg-blue-200 px-2 py-1 rounded-full inline-flex items-center gap-1 font-semibold">
-                          <Users className="w-3 h-3" />
-                          {entry.rop}
-                        </p>
+                      ))
+                    ) : (
+                      <div className="text-center py-12">
+                        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                          <Calendar className="w-8 h-8 text-gray-400" />
+                        </div>
+                        <p className="text-gray-500 font-medium text-sm">Нет новых заявок</p>
                       </div>
-                    ))
-                  ) : (
-                    <div className="text-center py-12">
-                      <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <Calendar className="w-8 h-8 text-gray-400" />
-                      </div>
-                      <p className="text-gray-500 font-medium text-sm">Нет новых заявок</p>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm">
-              <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-red-50 to-orange-50">
-                <h3 className="font-bold text-lg text-gray-900 flex items-center gap-3">
-                  <div className="w-4 h-4 bg-red-400 rounded-full animate-pulse"></div>Перенесенные
-                  <span className="ml-auto bg-gradient-to-r from-red-500 to-orange-500 text-white text-sm font-bold px-3 py-1 rounded-full">
-                    {rescheduledEntries.length}
-                  </span>
-                </h3>
-              </div>
-              <div className="p-6">
-                <div className="space-y-4 max-h-[25vh] overflow-y-auto">
-                  {rescheduledEntries.length > 0 ? (
-                    rescheduledEntries.map((entry) => (
-                      <div
-                        key={entry.id}
-                        draggable={!readOnly && !isMobile}
-                        onDragStart={(e) => handleDragStart(e, entry)}
-                        onClick={() => handleEntryClick(entry)}
-                        className={`p-4 bg-gradient-to-br from-red-50 to-orange-50 border-2 rounded-xl transition-all ${
-                          !readOnly ? "cursor-pointer" : ""
-                        } ${
-                          !readOnly && !isMobile ? "cursor-grab active:cursor-grabbing hover:shadow-lg hover:from-red-100 hover:to-orange-100 hover:border-red-300 transform hover:-translate-y-1" : ""
-                        } ${draggedItem?.id === entry.id ? "opacity-50 scale-95 rotate-2" : ""}
-                          ${selectedEntryForMobile?.id === entry.id ? "border-red-500 ring-2 ring-red-500" : "border-red-200"}`}
-                      >
-                        <div className="flex items-center justify-between mb-2">
-                          <p className="font-bold text-gray-900 text-sm">{entry.clientName}</p>
-                          <div className="text-gray-400">
-                            <ArrowLeft className="w-4 h-4" />
+              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm">
+                <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-red-50 to-orange-50">
+                  <h3 className="font-bold text-lg text-gray-900 flex items-center gap-3">
+                    <div className="w-4 h-4 bg-red-400 rounded-full animate-pulse"></div>Перенесенные
+                    <span className="ml-auto bg-gradient-to-r from-red-500 to-orange-500 text-white text-sm font-bold px-3 py-1 rounded-full">
+                      {rescheduledEntries.length}
+                    </span>
+                  </h3>
+                </div>
+                <div className="p-6">
+                  <div className="space-y-4 max-h-[25vh] overflow-y-auto">
+                    {rescheduledEntries.length > 0 ? (
+                      rescheduledEntries.map((entry) => (
+                        <div
+                          key={entry.id}
+                          draggable={!readOnly && !isMobile}
+                          onDragStart={(e) => handleDragStart(e, entry)}
+                          onClick={() => handleEntryClick(entry)}
+                          className={`p-4 bg-gradient-to-br from-red-50 to-orange-50 border-2 rounded-xl transition-all ${
+                            !readOnly ? "cursor-pointer" : ""
+                          } ${
+                            !readOnly && !isMobile ? "cursor-grab active:cursor-grabbing hover:shadow-lg hover:from-red-100 hover:to-orange-100 hover:border-red-300 transform hover:-translate-y-1" : ""
+                          } ${draggedItem?.id === entry.id ? "opacity-50 scale-95 rotate-2" : ""}
+                            ${selectedEntryForMobile?.id === entry.id ? "border-red-500 ring-2 ring-red-500" : "border-red-200"}`}
+                        >
+                          <div className="flex items-center justify-between mb-2">
+                            <p className="font-bold text-gray-900 text-sm">{entry.clientName}</p>
+                            <div className="text-gray-400">
+                              <ArrowLeft className="w-4 h-4" />
+                            </div>
                           </div>
+                          <p className="text-xs text-gray-600 mb-2 flex items-center gap-1">
+                            <Clock className="w-3 h-3" />
+                            {entry.trialDate} {entry.trialTime}
+                          </p>
+                          <p className="text-xs text-red-700 bg-red-200 px-2 py-1 rounded-full inline-flex items-center gap-1 font-semibold">
+                            <Users className="w-3 h-3" />
+                            {entry.rop}
+                          </p>
                         </div>
-                        <p className="text-xs text-gray-600 mb-2 flex items-center gap-1">
-                          <Clock className="w-3 h-3" />
-                          {entry.trialDate} {entry.trialTime}
-                        </p>
-                        <p className="text-xs text-red-700 bg-red-200 px-2 py-1 rounded-full inline-flex items-center gap-1 font-semibold">
-                          <Users className="w-3 h-3" />
-                          {entry.rop}
-                        </p>
+                      ))
+                    ) : (
+                      <div className="text-center py-8">
+                        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                          <History className="w-8 h-8 text-gray-400" />
+                        </div>
+                        <p className="text-gray-500 font-medium text-sm">Нет перенесенных заявок</p>
                       </div>
-                    ))
-                  ) : (
-                    <div className="text-center py-8">
-                      <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <History className="w-8 h-8 text-gray-400" />
-                      </div>
-                      <p className="text-gray-500 font-medium text-sm">Нет перенесенных заявок</p>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -1254,17 +1224,17 @@ const DistributionView = ({
               </h3>
             </div>
             <div className="p-6">
-              <div className="overflow-x-auto">
-                <table className="w-full border-collapse">
+              <div className="overflow-auto max-h-[70vh]">
+                <table className="w-full border-collapse relative">
                   <thead>
                     <tr>
-                      <th className="sticky left-0 bg-white p-3 border-b-2 border-gray-200 font-bold text-gray-900 text-left min-w-[80px] z-10 text-sm">
+                      <th className="sticky top-0 left-0 bg-gray-100 p-3 border-b-2 border-gray-200 font-bold text-gray-900 text-left min-w-[80px] z-30 text-sm">
                         Время
                       </th>
                       {teacherSchedule.teachers.map((teacher) => (
                         <th
                           key={teacher}
-                          className="p-3 border-b-2 border-gray-200 font-bold text-gray-900 min-w-[120px] text-center text-sm"
+                          className="sticky top-0 bg-gray-100 p-3 border-b-2 border-gray-200 font-bold text-gray-900 min-w-[120px] text-center text-sm z-20"
                         >
                           {teacher}
                         </th>
@@ -1282,7 +1252,7 @@ const DistributionView = ({
                           const cellKey = `${selectedDate}_${teacher}_${time}`
                           const isBlocked = blockedSlotsMap.has(cellKey)
                           const isDragOver = dragOverCell === `${teacher}-${time}`
-                          const isPrimedForBlock = cellToBlock === cellKey
+                          const isPrimedForBlock = cellToBlock === cellKey;
 
                           let cellClasses = "p-2 border-b border-gray-100 h-16 transition-all"
                           if (!readOnly && !assignedEntry) {
@@ -1296,9 +1266,9 @@ const DistributionView = ({
                               cellClasses +=
                                 " bg-gradient-to-br from-green-200 to-emerald-200 border-green-400 animate-pulse scale-105 border-2 border-dashed"
                             } else if (selectedEntryForMobile && isMobile) {
-                              cellClasses += " bg-blue-200 border-blue-400 border-2 border-dashed"
+                                cellClasses += " bg-blue-200 border-blue-400 border-2 border-dashed"
                             } else if (isPrimedForBlock && isMobile) {
-                              cellClasses += " bg-yellow-200 border-yellow-400 border-2 border-dashed"
+                                cellClasses += " bg-yellow-200 border-yellow-400 border-2 border-dashed"
                             } else {
                               cellClasses +=
                                 " bg-gradient-to-br from-green-50 to-emerald-50 hover:from-green-100 hover:to-emerald-100 border-2 border-dashed border-green-300"
@@ -1354,51 +1324,49 @@ const DistributionView = ({
   )
 }
 
-const TrialsListView = ({ entries, ropList, onOpenDetails, readOnly = false, onDeleteEntry, currentUser }) => {
-  const [filters, setFilters] = useState({ startDate: "", endDate: "", rop: "", source: "", status: "", paymentType: "" })
-  const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [entryToDelete, setEntryToDelete] = useState(null);
+const TrialsListView = ({ entries, ropList, onOpenDetails, readOnly = false, onFilterBySource }) => {
+  const [filters, setFilters] = useState({ startDate: "", endDate: "", rop: "", source: "", status: "", paymentType: "" });
 
   const sourceCounts = useMemo(() => {
-    const counts = {}
+    const counts = {};
     ALL_SOURCES.forEach(source => {
-      counts[source] = 0
-    })
+      counts[source] = 0;
+    });
     entries.forEach(entry => {
       if (counts[entry.source] !== undefined) {
-        counts[entry.source]++
+        counts[entry.source]++;
       }
-    })
-    return counts
-  }, [entries])
+    });
+    return counts;
+  }, [entries]);
 
   const filteredEntries = useMemo(() => {
     return entries
       .filter((entry) => {
-        const startDate = filters.startDate ? new Date(filters.startDate) : null
-        if (startDate) startDate.setUTCHours(0, 0, 0, 0)
+          const startDate = filters.startDate ? new Date(filters.startDate) : null;
+          if (startDate) startDate.setUTCHours(0, 0, 0, 0);
 
-        const endDate = filters.endDate ? new Date(filters.endDate) : null
-        if (endDate) endDate.setUTCHours(23, 59, 59, 999)
+          const endDate = filters.endDate ? new Date(filters.endDate) : null;
+          if (endDate) endDate.setUTCHours(23, 59, 59, 999);
 
-        const entryTrialDate = entry.trialDate ? new Date(entry.trialDate) : null
+          const entryTrialDate = entry.trialDate ? new Date(entry.trialDate) : null;
+          
+          let dateMatch = true;
+          if (startDate && endDate) {
+            dateMatch = entryTrialDate && entryTrialDate >= startDate && entryTrialDate <= endDate;
+          } else if (startDate) {
+            dateMatch = entryTrialDate && entryTrialDate >= startDate;
+          } else if (endDate) {
+            dateMatch = entryTrialDate && entryTrialDate <= endDate;
+          }
 
-        let dateMatch = true
-        if (startDate && endDate) {
-          dateMatch = entryTrialDate && entryTrialDate >= startDate && entryTrialDate <= endDate
-        } else if (startDate) {
-          dateMatch = entryTrialDate && entryTrialDate >= startDate
-        } else if (endDate) {
-          dateMatch = entryTrialDate && entryTrialDate <= endDate
-        }
-
-        return (
-          dateMatch &&
-          (!filters.rop || entry.rop === filters.rop) &&
-          (!filters.source || entry.source === filters.source) &&
-          (!filters.status || (entry.status || "Ожидает") === filters.status) &&
-          (!filters.paymentType || entry.paymentType === filters.paymentType)
-        )
+          return (
+            dateMatch &&
+            (!filters.rop || entry.rop === filters.rop) &&
+            (!filters.source || entry.source === filters.source) &&
+            (!filters.status || (entry.status || "Ожидает") === filters.status) &&
+            (!filters.paymentType || entry.paymentType === filters.paymentType)
+          );
       })
       .sort((a, b) => (new Date(b.createdAt) - new Date(a.createdAt)))
   }, [entries, filters])
@@ -1406,23 +1374,9 @@ const TrialsListView = ({ entries, ropList, onOpenDetails, readOnly = false, onD
   const handleFilterChange = (e) => {
     setFilters((prev) => ({ ...prev, [e.target.name]: e.target.value }))
   }
-
+  
   const handleSourceButtonClick = (source) => {
-    setFilters(prev => ({ ...prev, source: source }))
-  }
-
-  const handleDeleteClick = (e, entry) => {
-    e.stopPropagation(); // Prevent row click from opening details modal
-    setEntryToDelete(entry);
-    setShowConfirmModal(true);
-  };
-
-  const confirmDelete = () => {
-    if (entryToDelete) {
-        onDeleteEntry(entryToDelete.id);
-    }
-    setShowConfirmModal(false);
-    setEntryToDelete(null);
+    setFilters(prev => ({...prev, source: source}));
   };
 
   const getStatusBadge = (status) => {
@@ -1441,13 +1395,6 @@ const TrialsListView = ({ entries, ropList, onOpenDetails, readOnly = false, onD
 
   return (
     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm">
-      <ConfirmModal
-        isVisible={showConfirmModal}
-        onClose={() => setShowConfirmModal(false)}
-        onConfirm={confirmDelete}
-        title="Подтвердите удаление"
-        message={`Вы уверены, что хотите навсегда удалить заявку от клиента "${entryToDelete?.clientName}"? Это действие необратимо.`}
-      />
       <div className="p-8 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50">
         <h3 className="font-bold text-xl text-gray-900 flex items-center gap-3">
           <BookOpen className="w-6 h-6 text-blue-600" />
@@ -1459,14 +1406,14 @@ const TrialsListView = ({ entries, ropList, onOpenDetails, readOnly = false, onD
       </div>
       <div className="p-8 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
         <div className="flex flex-wrap gap-2 mb-4">
-          <button onClick={() => handleSourceButtonClick("")} className={`px-4 py-2 text-sm font-semibold rounded-full transition-colors ${!filters.source ? 'bg-blue-600 text-white shadow-md' : 'bg-white text-gray-700 hover:bg-gray-200'}`}>
-            Все ({entries.length})
-          </button>
-          {ALL_SOURCES.map(source => (
-            <button key={source} onClick={() => handleSourceButtonClick(source)} className={`px-4 py-2 text-sm font-semibold rounded-full transition-colors ${filters.source === source ? 'bg-blue-600 text-white shadow-md' : 'bg-white text-gray-700 hover:bg-gray-200'}`}>
-              {source} ({sourceCounts[source]})
+            <button onClick={() => handleSourceButtonClick("")} className={`px-4 py-2 text-sm font-semibold rounded-full transition-colors ${!filters.source ? 'bg-blue-600 text-white shadow-md' : 'bg-white text-gray-700 hover:bg-gray-200'}`}>
+                Все ({entries.length})
             </button>
-          ))}
+            {ALL_SOURCES.map(source => (
+                <button key={source} onClick={() => handleSourceButtonClick(source)} className={`px-4 py-2 text-sm font-semibold rounded-full transition-colors ${filters.source === source ? 'bg-blue-600 text-white shadow-md' : 'bg-white text-gray-700 hover:bg-gray-200'}`}>
+                    {source} ({sourceCounts[source]})
+                </button>
+            ))}
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <div>
@@ -1479,7 +1426,7 @@ const TrialsListView = ({ entries, ropList, onOpenDetails, readOnly = false, onD
               className="w-full p-3 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 font-medium"
             />
           </div>
-          <div>
+           <div>
             <label className="block text-xs font-bold text-gray-700 mb-2">Конец периода</label>
             <input
               type="date"
@@ -1535,11 +1482,6 @@ const TrialsListView = ({ entries, ropList, onOpenDetails, readOnly = false, onD
                   {header}
                 </th>
               ))}
-              {currentUser?.role === "super_admin" && (
-                <th className="px-8 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">
-                  Действия
-                </th>
-              )}
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
@@ -1578,17 +1520,6 @@ const TrialsListView = ({ entries, ropList, onOpenDetails, readOnly = false, onD
                     <span className="text-gray-400">---</span>
                   )}
                 </td>
-                {currentUser?.role === "super_admin" && (
-                  <td className="px-8 py-6 whitespace-nowrap text-center">
-                    <button
-                      onClick={(e) => handleDeleteClick(e, entry)}
-                      className="delete-button p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 hover:text-red-700 transition-colors"
-                      title="Удалить заявку"
-                    >
-                      <Trash2 size={18} />
-                    </button>
-                  </td>
-                )}
               </tr>
             ))}
           </tbody>
@@ -1606,13 +1537,30 @@ const TrialsListView = ({ entries, ropList, onOpenDetails, readOnly = false, onD
     </div>
   )
 }
-
-// Other components (LeaderboardView, ConversionView, etc.) remain largely the same,
-// so they are included here without modification for brevity in this explanation, but are present in the full code.
-
 const LeaderboardView = ({ entries, ropList, currentUser, plans, onSavePlans }) => {
   const [showPlanModal, setShowPlanModal] = useState(false)
   const [currentTime, setCurrentTime] = useState(new Date())
+  const toDateString = (date) => date.toISOString().split("T")[0];
+  const [dateRange, setDateRange] = useState({
+    startDate: toDateString(new Date()),
+    endDate: toDateString(new Date()),
+  });
+
+  const handleDateChange = (e) => {
+    setDateRange(prev => ({...prev, [e.target.name]: e.target.value}));
+  };
+
+  const filteredEntries = useMemo(() => {
+    const start = dateRange.startDate ? new Date(dateRange.startDate) : null;
+    const end = dateRange.endDate ? new Date(dateRange.endDate) : null;
+    if (start) start.setHours(0, 0, 0, 0);
+    if (end) end.setHours(23, 59, 59, 999);
+
+    return entries.filter(entry => {
+        const entryDate = new Date(entry.createdAt);
+        return (!start || entryDate >= start) && (!end || entryDate <= end);
+    });
+  }, [entries, dateRange]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -1627,7 +1575,7 @@ const LeaderboardView = ({ entries, ropList, currentUser, plans, onSavePlans }) 
     ropList.forEach((rop) => {
       stats[rop.name] = { trials: 0, cash: 0, plan: plans[rop.name] || 0, trialPlan: plans[`${rop.name}_trial`] || 0 }
     })
-    entries.forEach((entry) => {
+    filteredEntries.forEach((entry) => {
       if (stats[entry.rop]) {
         stats[entry.rop].trials += 1
         if (entry.status === "Оплата") {
@@ -1635,7 +1583,8 @@ const LeaderboardView = ({ entries, ropList, currentUser, plans, onSavePlans }) 
         }
       }
     })
-    return Object.entries(stats)
+    
+    const dataForSorting = Object.entries(stats)
       .map(([name, data]) => ({
         name,
         ...data,
@@ -1643,9 +1592,16 @@ const LeaderboardView = ({ entries, ropList, currentUser, plans, onSavePlans }) 
         trialProgress: data.trialPlan > 0 ? Math.min((data.trials / data.trialPlan) * 100, 100) : 0,
         cashRemaining: Math.max(data.plan - data.cash, 0),
         trialRemaining: Math.max(data.trialPlan - data.trials, 0),
-      }))
-      .sort((a, b) => b.cash - a.cash)
-  }, [entries, ropList, plans])
+      }));
+
+    const totalCashInPeriod = dataForSorting.reduce((sum, rop) => sum + rop.cash, 0);
+
+    if (totalCashInPeriod > 0) {
+        return dataForSorting.sort((a, b) => b.cash - a.cash);
+    } else {
+        return dataForSorting.sort((a, b) => b.trials - a.trials);
+    }
+  }, [filteredEntries, ropList, plans])
 
   const hourlyProgress = useMemo(() => {
     const now = currentTime
@@ -1675,20 +1631,20 @@ const LeaderboardView = ({ entries, ropList, currentUser, plans, onSavePlans }) 
     }
   }, [entries, currentTime])
 
-  const totalTrials = entries.length
+  const totalTrials = filteredEntries.length
   const totalCash = leaderboardData.reduce((sum, rop) => sum + rop.cash, 0)
   const totalPlan = leaderboardData.reduce((sum, rop) => sum + rop.plan, 0)
   const totalTrialPlan = leaderboardData.reduce((sum, rop) => sum + rop.trialPlan, 0)
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
-      <div className={`flex items-center ${currentUser?.role === 'public' ? 'justify-center' : 'justify-end'}`}>
+       <div className={`flex items-center ${currentUser?.role === 'public' ? 'justify-center' : 'justify-end'}`}>
         {currentUser?.role === 'public' && (
           <div className="text-center">
             <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-r from-yellow-400 to-yellow-600 rounded-3xl mb-6 shadow-2xl">
               <TrendingUp className="w-12 h-12 text-white" />
             </div>
-            <h2 className="text-4xl font-black text-gray-900 mb-4">Результаты команды</h2>
+            <h2 className="text-4xl font-black text-gray-900 mb-4">Команданың нәтижесі</h2>
             <p className="text-gray-600 text-lg">Результаты работы по пробным урокам</p>
           </div>
         )}
@@ -1702,11 +1658,38 @@ const LeaderboardView = ({ entries, ropList, currentUser, plans, onSavePlans }) 
           </button>
         )}
       </div>
+
+      <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+          <h3 className="font-bold text-lg text-gray-900 mb-4">Фильтр по дате</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Начальная дата</label>
+                  <input
+                      type="date"
+                      name="startDate"
+                      value={dateRange.startDate}
+                      onChange={handleDateChange}
+                      className="w-full p-3 border-2 border-gray-200 rounded-xl font-medium"
+                  />
+              </div>
+              <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Конечная дата</label>
+                  <input
+                      type="date"
+                      name="endDate"
+                      value={dateRange.endDate}
+                      onChange={handleDateChange}
+                      className="w-full p-3 border-2 border-gray-200 rounded-xl font-medium"
+                  />
+              </div>
+          </div>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-3xl p-6 text-white shadow-2xl">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-blue-100 text-sm font-semibold uppercase tracking-wide">Всего пробных</p>
+              <p className="text-blue-100 text-sm font-semibold uppercase tracking-wide">Жалпы пробный</p>
               <p className="text-3xl font-black mt-2">{totalTrials}</p>
               {totalTrialPlan > 0 && <p className="text-blue-200 text-sm mt-1">План: {totalTrialPlan}</p>}
             </div>
@@ -1718,7 +1701,7 @@ const LeaderboardView = ({ entries, ropList, currentUser, plans, onSavePlans }) 
         <div className="bg-gradient-to-r from-green-500 to-green-600 rounded-3xl p-6 text-white shadow-2xl">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-green-100 text-sm font-semibold uppercase tracking-wide">Общая касса</p>
+              <p className="text-green-100 text-sm font-semibold uppercase tracking-wide">Жалпы касса</p>
               <p className="text-3xl font-black mt-2">{totalCash.toLocaleString("ru-RU")} ₸</p>
               {totalPlan > 0 && (
                 <p className="text-green-200 text-sm mt-1">План: {totalPlan.toLocaleString("ru-RU")} ₸</p>
@@ -1732,7 +1715,7 @@ const LeaderboardView = ({ entries, ropList, currentUser, plans, onSavePlans }) 
         <div className="bg-gradient-to-r from-purple-500 to-purple-600 rounded-3xl p-6 text-white shadow-2xl">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-purple-100 text-sm font-semibold uppercase tracking-wide">Осталось по кассе</p>
+              <p className="text-purple-100 text-sm font-semibold uppercase tracking-wide">Касса осталось</p>
               <p className="text-3xl font-black mt-2">
                 {Math.max(totalPlan - totalCash, 0).toLocaleString("ru-RU")} ₸
               </p>
@@ -1748,7 +1731,7 @@ const LeaderboardView = ({ entries, ropList, currentUser, plans, onSavePlans }) 
         <div className="bg-gradient-to-r from-orange-500 to-orange-600 rounded-3xl p-6 text-white shadow-2xl">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-orange-100 text-sm font-semibold uppercase tracking-wide">Осталось пробных</p>
+              <p className="text-orange-100 text-sm font-semibold uppercase tracking-wide">Пробный осталось</p>
               <p className="text-3xl font-black mt-2">{Math.max(totalTrialPlan - totalTrials, 0)}</p>
               <p className="text-orange-200 text-sm mt-1">
                 {totalTrialPlan > 0 ? `${Math.round((totalTrials / totalTrialPlan) * 100)}%` : "0%"} выполнено
@@ -1792,7 +1775,7 @@ const LeaderboardView = ({ entries, ropList, currentUser, plans, onSavePlans }) 
                   <p className="text-3xl font-black text-green-600">{rop.cash.toLocaleString("ru-RU")} ₸</p>
                   {rop.plan > 0 && (
                     <p className="text-sm text-gray-500 font-medium">
-                      Осталось: {rop.cashRemaining.toLocaleString("ru-RU")} ₸
+                      Осталось: {rop.cashRemaining.toLocaleString("ru-RU")} ₸ 
                     </p>
                   )}
                 </div>
@@ -1895,7 +1878,7 @@ const ConversionView = ({ entries, teacherSchedule }) => {
           let dateMatch = true;
 
           if (startDate && endDate) {
-            dateMatch = entryDate && entryDate >= startDate && entryDate >= startDate && entryDate <= endDate;
+            dateMatch = entryDate && entryDate >= startDate && entryDate <= endDate;
           } else if (startDate) {
             dateMatch = entryDate && entryDate >= startDate;
           } else if (endDate) {
@@ -1967,7 +1950,7 @@ const ConversionView = ({ entries, teacherSchedule }) => {
                 className="w-full p-3 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-purple-500 font-medium"
               />
             </div>
-            <div className="flex items-end">
+             <div className="flex items-end">
               <button
                 onClick={() => setFilters({ startDate: "", endDate: "" })}
                 className="w-full px-4 py-3 bg-gradient-to-r from-gray-400 to-gray-500 text-white rounded-xl hover:from-gray-500 hover:to-gray-600 transition-all font-bold"
@@ -2294,7 +2277,7 @@ const TeacherDashboard = (props) => {
 }
 
 // =================================================================
-//                 REFACTORED ANALYTICS COMPONENTS
+//                    REFACTORED ANALYTICS COMPONENTS
 // =================================================================
 
 const StatCard = ({ title, value, icon, gradient }) => (
@@ -2360,7 +2343,7 @@ const BreakdownList = ({ title, data }) => (
                         />
                         <Tooltip formatter={(value) => `${value.toLocaleString('ru-RU')} ₸`} />
                         <Bar yAxisId={0} dataKey="amount" name="Касса" fill="#3b82f6" radius={[0, 4, 4, 0]} maxBarSize={25}>
-                            <LabelList dataKey="name" position="insideLeft" style={{ fill: 'white', fontSize: '12px', fontWeight: 'bold' }} />
+                           <LabelList dataKey="name" position="insideLeft" style={{ fill: 'white', fontSize: '12px', fontWeight: 'bold' }} />
                         </Bar>
                     </BarChart>
                 </ResponsiveContainer>
@@ -2407,7 +2390,7 @@ const TrialSourceChart = ({ title, data }) => (
                         />
                         <Tooltip formatter={(value) => [`${value} пробных`, 'Количество']} />
                         <Bar yAxisId={0} dataKey="count" name="Пробные" fill="#8884d8" radius={[0, 4, 4, 0]} maxBarSize={25}>
-                            <LabelList dataKey="name" position="insideLeft" style={{ fill: 'white', fontSize: '12px', fontWeight: 'bold' }} />
+                           <LabelList dataKey="name" position="insideLeft" style={{ fill: 'white', fontSize: '12px', fontWeight: 'bold' }} />
                         </Bar>
                     </BarChart>
                 </ResponsiveContainer>
@@ -2435,7 +2418,7 @@ const CombinedCashTrialsChart = ({ data }) => {
 
     return (
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">
-            <h3 className="font-bold text-xl text-gray-900">График: Пробные уроки и Касса</h3>
+            <h3 className="font-bold text-xl text-gray-900">График: Пробный сабақ и Касса</h3>
             <p className="text-gray-500 text-sm mb-4">Динамика пробных уроков и кассы за выбранный период</p>
             <ResponsiveContainer width="100%" height={450}>
                 <ComposedChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
@@ -2477,7 +2460,7 @@ const ReachabilityChart = ({ stats }) => {
                             fill="#10b981"
                             cornerRadius={10}
                         />
-                        <Tooltip />
+                         <Tooltip />
                         <text
                             x="50%"
                             y="50%"
@@ -2803,7 +2786,7 @@ const AdminPage = ({
   const renderAdminView = () => {
     switch (activeTab) {
       case "trials-list":
-        return <TrialsListView {...props} onOpenDetails={props.onOpenDetails} readOnly={readOnly} currentUser={currentUser} onDeleteEntry={props.onDeleteEntry} />
+        return <TrialsListView {...props} onOpenDetails={props.onOpenDetails} readOnly={readOnly} />
       case "leaderboard":
         return <LeaderboardView {...props} currentUser={currentUser} plans={plans} onSavePlans={onSavePlans} />
       case "conversion":
@@ -2838,13 +2821,7 @@ const AdminPage = ({
         )}
         <div className="flex gap-2 bg-gray-100 p-2 rounded-2xl flex-wrap">
           {tabs
-            .filter((tab) => {
-                if (readOnly) return !tab.adminOnly; // For public view
-                if (currentUser.role === 'super_admin') return true; // Super admin sees all
-                if (currentUser.role === 'admin') return true; // Admin sees all
-                if (currentUser.role === 'rop') return !tab.adminOnly; // ROP sees public tabs
-                return false;
-            })
+            .filter((tab) => !readOnly && (currentUser.role === "admin" || !tab.adminOnly))
             .map((tab) => (
               <button
                 key={tab.id}
@@ -2874,7 +2851,7 @@ const AdminPage = ({
 }
 
 // =================================================================
-//                       MAIN APP COMPONENT
+//                         MAIN APP COMPONENT
 // =================================================================
 
 export default function App() {
@@ -2882,11 +2859,10 @@ export default function App() {
   const [adminTab, setAdminTab] = useState("distribution")
   const [currentUser, setCurrentUser] = useState(null)
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split("T")[0])
-  
-  const [isLoading, setIsLoading] = useState(true)
-  const [entries, setEntries] = useState([])
-  const [blockedSlots, setBlockedSlots] = useState([])
   const [plans, setPlans] = useState({})
+  const [isLoading, setIsLoading] = useState(true);
+  const [entries, setEntries] = useState([]);
+  const [blockedSlots, setBlockedSlots] = useState([])
 
   const ropList = useMemo(() => demoUsers.filter((u) => u.role === "rop"), [])
   const teacherList = useMemo(() => demoUsers.filter((u) => u.role === "teacher").map((t) => t.name), [])
@@ -2899,69 +2875,74 @@ export default function App() {
   const [isDetailsReadOnly, setIsDetailsReadOnly] = useState(false)
 
   const showToastMessage = useCallback((message, type = "success") => {
-    setToast({ isVisible: true, message, type })
-    setTimeout(() => setToast((prev) => ({ ...prev, isVisible: false })), 4000)
-  }, [])
+    setToast({ isVisible: true, message, type });
+    setTimeout(() => setToast((prev) => ({ ...prev, isVisible: false })), 4000);
+  }, []);
 
-  // Load data from localStorage on initial mount
-  useEffect(() => {
-    setIsLoading(true);
+  const fetchEntries = useCallback(async () => {
     try {
-        const savedEntries = localStorage.getItem('crm_entries');
-        if (savedEntries) {
-            setEntries(JSON.parse(savedEntries).map(e => ({...e, createdAt: new Date(e.createdAt)})));
+        const response = await fetch(`${API_URL}/api/entries`);
+        if (!response.ok) {
+            throw new Error('Не удалось загрузить данные заявок с сервера');
         }
+        const data = await response.json();
+        const formattedData = data.map(entry => ({...entry, createdAt: new Date(entry.createdAt)}));
+        setEntries(formattedData);
+    } catch (error) {
+        console.error("Ошибка при загрузке заявок:", error);
+        showToastMessage("Не удалось загрузить данные заявок", "error");
+    }
+  }, [showToastMessage]);
 
-        const savedSlots = localStorage.getItem('crm_blocked_slots');
-        if (savedSlots) {
-            setBlockedSlots(JSON.parse(savedSlots));
+  const fetchBlockedSlots = useCallback(async () => {
+    try {
+        const response = await fetch(`${API_URL}/api/blocked-slots`);
+        if (!response.ok) {
+            throw new Error('Не удалось загрузить заблокированные слоты');
         }
+        const data = await response.json();
+        setBlockedSlots(data);
+    } catch (error) {
+        console.error("Ошибка при загрузке заблокированных слотов:", error);
+        showToastMessage("Не удалось загрузить данные о блокировках", "error");
+    }
+  }, [showToastMessage]);
 
-        const savedPlans = localStorage.getItem('crm_plans');
-        if (savedPlans) {
-            setPlans(JSON.parse(savedPlans));
-        }
-
+  // Эффект для первоначальной загрузки данных и восстановления сессии
+  useEffect(() => {
+    const loadInitialData = async () => {
+        setIsLoading(true);
         const loggedInUser = localStorage.getItem('currentUser');
         if (loggedInUser) {
             const user = JSON.parse(loggedInUser);
             setCurrentUser(user);
             setView("dashboard");
-            setAdminTab(user.role === "teacher" ? "schedule" : "distribution");
         }
-    } catch (error) {
-        console.error("Failed to load data from localStorage", error);
-        showToastMessage("Ошибка загрузки сохраненных данных", "error");
-    }
-    setIsLoading(false);
-  }, [showToastMessage]);
+        await Promise.all([fetchEntries(), fetchBlockedSlots()]);
+        setIsLoading(false);
+    };
+    loadInitialData();
+  }, [fetchEntries, fetchBlockedSlots]);
 
-  // Save data to localStorage whenever it changes
+  // Эффект для периодического обновления данных (polling)
   useEffect(() => {
-    if (!isLoading) {
-        localStorage.setItem('crm_entries', JSON.stringify(entries));
-    }
-  }, [entries, isLoading]);
+    if (currentUser) { // Обновляем данные только если пользователь вошел в систему
+        const interval = setInterval(() => {
+            fetchEntries();
+            fetchBlockedSlots();
+        }, 15000); // каждые 15 секунд
 
-  useEffect(() => {
-    if (!isLoading) {
-        localStorage.setItem('crm_blocked_slots', JSON.stringify(blockedSlots));
+        return () => clearInterval(interval); // Очистка при размонтировании
     }
-  }, [blockedSlots, isLoading]);
-
-  useEffect(() => {
-    if (!isLoading) {
-        localStorage.setItem('crm_plans', JSON.stringify(plans));
-    }
-  }, [plans, isLoading]);
+  }, [currentUser, fetchEntries, fetchBlockedSlots]);
 
 
   const handleLogin = (username, password) => {
     const user = demoUsers.find((u) => u.username === username && u.password === password)
     if (user) {
-      const userToStore = { name: user.name, role: user.role, username: user.username } // Don't store password
-      localStorage.setItem('currentUser', JSON.stringify(userToStore))
-      setCurrentUser(userToStore)
+      const userToStore = { name: user.name, role: user.role };
+      localStorage.setItem('currentUser', JSON.stringify(userToStore));
+      setCurrentUser(userToStore);
       setShowLoginModal(false)
       showToastMessage(`С возвращением, ${user.name}!`, "success")
       setAdminTab(user.role === "teacher" ? "schedule" : "distribution")
@@ -2972,7 +2953,7 @@ export default function App() {
   }
 
   const handleLogout = () => {
-    localStorage.removeItem('currentUser')
+    localStorage.removeItem('currentUser');
     setCurrentUser(null)
     setView("form")
     showToastMessage("Вы вышли из системы.", "success")
@@ -2983,78 +2964,75 @@ export default function App() {
     setSelectedEntry(null)
   }
 
-  const handleOpenDetails = (entry, readOnlyProp = false) => {
+  const handleOpenDetails = (entry, readOnly = false) => {
     if (!entry?.id) {
       showToastMessage("Ошибка: данные записи повреждены", "error")
       return
     }
 
     setSelectedEntry(entry)
-    let modalIsReadOnly = readOnlyProp
-
+    let isModalReadOnly = readOnly
     if (currentUser) {
-      if (currentUser.role === "admin" || currentUser.role === "super_admin") {
-        modalIsReadOnly = false
-      } else if (currentUser.role === "teacher" && entry.assignedTeacher === currentUser.name) {
-        modalIsReadOnly = false
+      if (currentUser.role === "admin" || (currentUser.role === "teacher" && entry.assignedTeacher === currentUser.name)) {
+        isModalReadOnly = false
       } else {
-        modalIsReadOnly = true
+        isModalReadOnly = true
       }
     } else {
-      modalIsReadOnly = true
+      isModalReadOnly = true
     }
-    setIsDetailsReadOnly(modalIsReadOnly)
+    setIsDetailsReadOnly(isModalReadOnly)
     setShowDetailsModal(true)
   }
 
   const handleSavePlans = async (newPlans) => {
-    if (currentUser?.role !== 'admin' && currentUser?.role !== 'super_admin') {
-        showToastMessage("У вас нет прав для изменения планов.", "error");
-        return;
-    }
+    // TODO: Добавить логику сохранения планов на бэкенд
     setPlans(newPlans)
-    showToastMessage("Планы успешно сохранены", "success")
+    showToastMessage("Планы сохранены (локально)", "success")
   }
 
   const handleUpdateEntry = async (entryId, dataToUpdate) => {
-    const originalEntry = entries.find(e => e.id === entryId);
-    
-    setEntries(prev => prev.map(entry =>
-      entry.id === entryId ? { ...entry, ...dataToUpdate } : entry
-    ));
-    showToastMessage("Данные успешно обновлены!", "success");
+    // Оптимистичное обновление UI
+    const originalEntries = entries;
+    const updatedEntries = entries.map(entry =>
+        entry.id === entryId ? { ...entry, ...dataToUpdate } : entry
+    );
+    setEntries(updatedEntries);
 
-    // Send status update to Google Sheets if status has changed
-    if (originalEntry && originalEntry.status !== dataToUpdate.status) {
-        const sheetUpdateData = {
-          action: 'update',
-          phone: dataToUpdate.phone,
-          status: dataToUpdate.status
-        };
-        
-        fetch(GOOGLE_SCRIPT_URL, {
-            method: 'POST',
-            mode: 'no-cors', // Important for Google Apps Script
+    try {
+        // 1. Обновляем данные в основной базе данных
+        const response = await fetch(`${API_URL}/api/entries/${entryId}`, {
+            method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(sheetUpdateData)
-        }).catch(err => {
-            console.error("Ошибка при обновлении статуса в Google Sheets:", err);
-            // Optionally show a toast message for this specific error
-            showToastMessage("Не удалось обновить статус в Google Sheets", "error");
+            body: JSON.stringify(dataToUpdate),
         });
+
+        if (!response.ok) {
+            throw new Error('Ошибка при обновлении на сервере');
+        }
+        showToastMessage("Данные успешно обновлены!", "success");
+
+        // 2. Обновляем статус в Google Sheets
+        const sheetUpdateData = {
+          action: 'update',
+          phone: dataToUpdate.phone, // Используем телефон как уникальный ключ
+          status: dataToUpdate.status // Отправляем новый статус
+        };
+
+        fetch(GOOGLE_SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            body: JSON.stringify(sheetUpdateData)
+        }).catch(err => console.error("Ошибка при обновлении статуса в Google Sheets:", err));
+
+    } catch (error) {
+        console.error("Ошибка при обновлении заявки:", error);
+        showToastMessage("Не удалось обновить данные на сервере", "error");
+        setEntries(originalEntries);
     }
   }
-
-  const handleDeleteEntry = async (entryId) => {
-    if (currentUser?.role !== 'super_admin') {
-        showToastMessage("У вас нет прав для удаления заявок.", "error");
-        return;
-    }
-    setEntries(prevEntries => prevEntries.filter(entry => entry.id !== entryId));
-    showToastMessage("Заявка успешно удалена!", "success");
-  };
 
   const handleSaveDetails = async (entryId, dataToUpdate) => {
     await handleUpdateEntry(entryId, dataToUpdate)
@@ -3063,46 +3041,83 @@ export default function App() {
   const handleFormSubmit = async (data) => {
     const creationDate = new Date();
     const newEntryData = {
-      ...data,
-      id: Date.now(), // Simple unique ID for local state
-      createdAt: creationDate.toISOString(),
-      status: "Ожидает",
+        ...data,
+        createdAt: creationDate.toISOString(), // Отправляем в ISO формате
+        status: "Ожидает",
     };
-    setEntries(prev => [{ ...newEntryData, createdAt: new Date(newEntryData.createdAt) }, ...prev]);
-    
-    // Send data to Google Sheets
-    const sheetData = { ...newEntryData, createdAt: creationDate.toLocaleString('ru-RU', { timeZone: 'Asia/Almaty' }) };
 
-    fetch(GOOGLE_SCRIPT_URL, {
-        method: 'POST',
-        mode: 'no-cors', // Important for Google Apps Script
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(sheetData)
-    }).catch(err => {
-        console.error("Ошибка при отправке в Google Sheets:", err);
-        showToastMessage("Не удалось сохранить данные в Google Sheets", "error");
-    });
-  };
+    try {
+        // Отправка данных на бэкенд
+        const response = await fetch(`${API_URL}/api/entries`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(newEntryData),
+        });
+
+        if (!response.ok) {
+            throw new Error('Ошибка при отправке на сервер');
+        }
+
+        const savedEntry = await response.json();
+        
+        // Добавляем новую запись в начало списка для немедленного отображения
+        setEntries(prev => [{ ...savedEntry, createdAt: new Date(savedEntry.createdAt) }, ...prev]);
+
+        showToastMessage("Заявка успешно сохранена на сервере!", "success");
+
+        // Отправка в Google Sheets
+        const sheetData = { ...newEntryData, createdAt: creationDate.toLocaleString('ru-RU', { timeZone: 'Asia/Almaty' }) };
+
+        fetch(GOOGLE_SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            body: JSON.stringify(sheetData)
+        }).catch(err => console.error("Ошибка при отправке в Google Sheets:", err));
+
+    } catch (error) {
+        console.error("Ошибка при сохранении заявки:", error);
+        showToastMessage("Не удалось сохранить заявку на сервере", "error");
+    }
+};
 
   const handleToggleBlockSlot = async (date, teacher, time) => {
-    if (currentUser?.role !== 'admin' && currentUser?.role !== 'super_admin') {
-        showToastMessage("Только администратор может блокировать слоты.", "error");
-        return;
-    }
-
-    const docId = `${date}_${teacher}_${time}`
-    const isBlocked = blockedSlots.some(slot => slot.id === docId)
-
+    const docId = `${date}_${teacher}_${time}`;
+    const isBlocked = blockedSlots.some(slot => slot.id === docId);
+    
+    // Оптимистичное обновление
+    const originalSlots = blockedSlots;
     if (isBlocked) {
-      setBlockedSlots(prev => prev.filter(slot => slot.id !== docId))
-      showToastMessage("Слот разблокирован", "success")
+        setBlockedSlots(prev => prev.filter(slot => slot.id !== docId));
     } else {
-      setBlockedSlots(prev => [...prev, { id: docId, date, teacher, time }])
-      showToastMessage("Слот заблокирован", "success")
+        setBlockedSlots(prev => [...prev, { id: docId, date, teacher, time }]);
     }
-  }
+
+    try {
+        if (isBlocked) {
+            // Удаляем блокировку
+            const response = await fetch(`${API_URL}/api/blocked-slots/${docId}`, {
+                method: 'DELETE',
+            });
+            if (!response.ok) throw new Error("Ошибка при разблокировке");
+            showToastMessage("Слот разблокирован", "success");
+        } else {
+            // Добавляем блокировку
+            const response = await fetch(`${API_URL}/api/blocked-slots`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: docId, date, teacher, time }),
+            });
+            if (!response.ok) throw new Error("Ошибка при блокировке");
+            showToastMessage("Слот заблокирован", "success");
+        }
+    } catch (error) {
+        console.error("Ошибка при изменении блокировки:", error);
+        showToastMessage("Не удалось изменить статус слота", "error");
+        setBlockedSlots(originalSlots);
+    }
+  };
 
   const dashboardTabs = [
     { id: "distribution", label: "Распределение", adminOnly: true },
@@ -3117,15 +3132,13 @@ export default function App() {
   const renderHeader = () => {
     if (!currentUser) return null
     return (
-      <header className="mb-8 p-8 bg-white rounded-2xl border border-gray-100 shadow-sm">
-        <div className="flex justify-between items-center">
+      <header className="mb-8 p-4 md:p-8 bg-white rounded-2xl border border-gray-100 shadow-sm">
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
           <div>
-            <h2 className="text-3xl font-black text-gray-900">Панель управления</h2>
+            <h2 className="text-2xl md:text-3xl font-black text-gray-900">Панель управления</h2>
             <p className="text-gray-600 mt-2 font-medium">
               {currentUser.name} •{" "}
-              {currentUser.role === "super_admin"
-                ? "Супер-Администратор"
-                : currentUser.role === "admin"
+              {currentUser.role === "admin"
                 ? "Администратор"
                 : currentUser.role === "teacher"
                 ? "Преподаватель"
@@ -3168,10 +3181,10 @@ export default function App() {
 
     return (
       <Modal isVisible={true} onClose={onClose} size="full">
-        <div className="p-8 border-b border-gray-200 bg-gradient-to-r from-green-50 to-emerald-50">
+        <div className="p-4 md:p-8 border-b border-gray-200 bg-gradient-to-r from-green-50 to-emerald-50">
           <div className="flex flex-wrap justify-between items-center gap-4">
-            <h3 className="font-bold text-2xl text-gray-900 flex items-center gap-3">
-              <Calendar className="w-8 h-8 text-green-600" />
+            <h3 className="font-bold text-xl md:text-2xl text-gray-900 flex items-center gap-3">
+              <Calendar className="w-6 h-6 md:w-8 md:h-8 text-green-600" />
               График преподавателей
             </h3>
             <input
@@ -3188,18 +3201,18 @@ export default function App() {
             </button>
           </div>
         </div>
-        <div className="flex-1 overflow-auto p-8">
+        <div className="flex-1 overflow-auto p-4 md:p-8">
           <div className="overflow-x-auto">
             <table className="w-full border-collapse">
               <thead>
                 <tr>
-                  <th className="sticky left-0 bg-white p-4 border-b-2 border-gray-200 font-bold text-gray-900 text-left min-w-[100px] z-10">
+                  <th className="sticky top-0 left-0 bg-white p-4 border-b-2 border-gray-200 font-bold text-gray-900 text-left min-w-[100px] z-10">
                     Время
                   </th>
                   {props.teacherSchedule.teachers.map((teacher) => (
                     <th
                       key={teacher}
-                      className="p-4 border-b-2 border-gray-200 font-bold text-gray-900 min-w-[140px] text-center"
+                      className="sticky top-0 bg-white p-4 border-b-2 border-gray-200 font-bold text-gray-900 min-w-[140px] text-center"
                     >
                       {teacher}
                     </th>
@@ -3272,7 +3285,7 @@ export default function App() {
         )
       case "rating":
         return (
-          <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white p-8">
+          <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white p-4 md:p-8">
             <AdminPage
               readOnly={true}
               tabs={dashboardTabs.filter((t) => !t.adminOnly)}
@@ -3325,12 +3338,10 @@ export default function App() {
           onSavePlans: handleSavePlans,
           currentUser,
           onUpdateEntry: handleUpdateEntry,
-          onDeleteEntry: handleDeleteEntry,
         }
 
         const dashboardContent = (() => {
           switch (currentUser.role) {
-            case "super_admin":
             case "admin":
               return (
                 <AdminPage {...commonProps} tabs={dashboardTabs} activeTab={adminTab} setActiveTab={setAdminTab} />
@@ -3355,7 +3366,7 @@ export default function App() {
 
         return (
           <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
-            <div className="container mx-auto p-6 sm:p-8 lg:p-12">
+            <div className="container mx-auto p-4 sm:p-6 lg:p-8">
               {renderHeader()}
               {dashboardContent}
             </div>
