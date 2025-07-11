@@ -2,55 +2,20 @@
 
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import {
-  X,
-  Calendar,
-  Users,
-  TrendingUp,
-  BookOpen,
-  BarChart3,
-  UserCheck,
-  Clock,
-  Phone,
-  MapPin,
-  Mail,
-  CheckCircle,
-  ArrowLeft,
-  Plus,
-  Target,
-  User as UserIcon,
-  Filter,
-  DollarSign,
-  PieChart,
-  Check,
-  XCircle,
-  History,
-  BookCopy,
-  Lock,
-  Unlock,
-  Info,
+  X, Calendar, Users, TrendingUp, BookOpen, BarChart3, UserCheck, Clock, Phone,
+  MapPin, Mail, CheckCircle, ArrowLeft, Plus, Target, Filter, DollarSign,
+  PieChart, Check, XCircle, History, BookCopy, Lock, Unlock, Info,
 } from "lucide-react"
 
 import {
-  ComposedChart,
-  BarChart,
-  RadialBarChart,
-  Line,
-  Bar,
-  RadialBar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-  LabelList,
+  ComposedChart, BarChart, RadialBarChart, Line, Bar, RadialBar, XAxis, YAxis,
+  CartesianGrid, Tooltip, Legend, ResponsiveContainer, LabelList,
 } from "recharts"
 
 // =================================================================
 //                            CONFIGURATION
 // =================================================================
-// !!! ВАЖНО: Замените этот URL на URL вашего бэкенда, который вы получили от Render
-const API_URL = "https://backend-expert-crm.onrender.com"; 
+const API_URL = "https://backend-expert-crm.onrender.com";
 const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxXA8JQ0sQ1gxFQYGhgo995CFq3CrbgSPMnkHez0Up7PzWhsoFAbQMj3CoI15dJmEU_Uw/exec";
 
 // =================================================================
@@ -65,31 +30,25 @@ const demoUsers = [
   { id: "5", username: "abylay", password: "password123", role: "rop", name: "Абылай" },
   { id: "6", username: "aiaru", password: "password123", role: "rop", name: "Айару" },
   { id: "7", username: "sayakhat", password: "password123", role: "rop", name: "Саяхат" },
+  { id: "8", username: "madina", password: "password123", role: "rop", name: "Мадина" },
   // Teachers
-  { id: "8", username: "kymbat", password: "password123", role: "teacher", name: "Қымбат" },
-  { id: "9", username: "dilnaz", password: "password123", role: "teacher", name: "Дильназ" },
-  { id: "10", username: "sabina", password: "password123", role: "teacher", name: "Сабина" },
-  { id: "11", username: "nurkabyl", password: "password123", role: "teacher", name: "Нұрқабыл" },
-  { id: "12", username: "sayazhan", password: "password123", role: "teacher", name: "Саяжан" },
-  { id: "13", username: "nursulu", password: "password123", role: "teacher", name: "Нұрсұлу" },
-  { id: "14", username: "gaziza", password: "password123", role: "teacher", name: "Ғазиза" },
-  { id: "15", username: "danial_teacher", password: "password123", role: "teacher", name: "Даниал" },
-  { id: "16", username: "gulzhan", password: "password123", role: "teacher", name: "Гульжан" },
-  { id: "17", username: "erkemai", password: "password123", role: "teacher", name: "Еркемай" },
-  { id: "18", username: "zhanargul", password: "password123", role: "teacher", name: "Жанаргуль" },
+  { id: "9", username: "kymbat", password: "password123", role: "teacher", name: "Қымбат" },
+  { id: "10", username: "dilnaz", password: "password123", role: "teacher", name: "Дильназ" },
+  { id: "11", username: "sabina", password: "password123", role: "teacher", name: "Сабина" },
+  { id: "12", username: "nurkabyl", password: "password123", role: "teacher", name: "Нұрқабыл" },
+  { id: "13", username: "sayazhan", password: "password123", role: "teacher", name: "Саяжан" },
+  { id: "14", username: "nursulu", password: "password123", role: "teacher", name: "Нұрсұлу" },
+  { id: "15", username: "gaziza", password: "password123", role: "teacher", name: "Ғазиза" },
+  { id: "16", username: "danial_teacher", password: "password123", role: "teacher", name: "Даниал" },
+  { id: "17", username: "gulzhan", password: "password123", role: "teacher", name: "Гульжан" },
+  { id: "18", username: "erkemai", password: "password123", role: "teacher", name: "Еркемай" },
+  { id: "19", username: "zhanargul", password: "password123", role: "teacher", name: "Жанаргуль" },
+  { id: "20", username: "dana", password: "password123", role: "teacher", name: "Дана" },
 ]
 
 const ALL_SOURCES = [
-  "Facebook Tilda-Сайт",
-  "Фейсбук Ватсап",
-  "Facebook Ген-лид",
-  "TikTok Target",
-  "Инстаграм сторис",
-  "Инстаграм био",
-  "Телеграм",
-  "Блогер",
-  "База-лид",
-  "Деңгей анықтау",
+  "Facebook Tilda-Сайт", "Фейсбук Ватсап", "Facebook Ген-лид", "TikTok Target",
+  "Инстаграм сторис", "Инстаграм био", "Телеграм", "Блогер", "База-лид", "Деңгей анықтау",
 ]
 
 const generateTimeSlots = () => {
@@ -139,7 +98,7 @@ const getRankColor = (index) => {
 }
 
 const getRankIcon = (index) => {
-  const icons = ["👑", "🥈", "🥉"]
+  const icons = ["👑", "🥈", "�"]
   return icons[index] || index + 1
 }
 
@@ -3401,3 +3360,4 @@ export default function App() {
     </div>
   )
 }
+�
