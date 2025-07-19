@@ -1,121 +1,163 @@
-"use client"
+"use client";
 
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import {
-  X, Calendar, Users, TrendingUp, BookOpen, BarChart3, UserCheck, Clock, Phone,
-  MapPin, Mail, CheckCircle, ArrowLeft, Plus, Target, Filter, DollarSign,
-  PieChart, Check, XCircle, History, BookCopy, Lock, Unlock, Info,
-} from "lucide-react"
+  X,
+  Calendar,
+  Users,
+  TrendingUp,
+  BookOpen,
+  BarChart3,
+  UserCheck,
+  Clock,
+  Phone,
+  MapPin,
+  Mail,
+  CheckCircle,
+  ArrowLeft,
+  Plus,
+  Target,
+  User as UserIcon,
+  Filter,
+  DollarSign,
+  PieChart as PieChartIcon,
+  Check,
+  XCircle,
+  History,
+  BookCopy,
+  Lock,
+  Unlock,
+  Info,
+  Search,
+  Edit,
+  Trash2,
+  Send,
+  Loader
+} from "lucide-react";
 
 import {
-  ComposedChart, BarChart, RadialBarChart, Line, Bar, RadialBar, XAxis, YAxis,
-  CartesianGrid, Tooltip, Legend, ResponsiveContainer, LabelList,
-} from "recharts"
+  ComposedChart,
+  BarChart,
+  RadialBarChart,
+  Line,
+  Bar,
+  RadialBar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  LabelList,
+  PieChart,
+  Pie,
+  Cell
+} from "recharts";
 
 // =================================================================
-//                            CONFIGURATION
+//                     CONFIGURATION
 // =================================================================
 const API_URL = "https://backend-expert-crm.onrender.com";
 const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxXA8JQ0sQ1gxFQYGhgo995CFq3CrbgSPMnkHez0Up7PzWhsoFAbQMj3CoI15dJmEU_Uw/exec";
+const WEBHOOK_URL = "https://akcent.online/webhook";
+const RESCHEDULE_WEBHOOK_URL = "https://akcent.online/reschedule-webhook";
 
 // =================================================================
-//                         DEMO DATA & CONSTANTS
+//                     DEMO DATA & CONSTANTS
 // =================================================================
-const demoUsers = [
+const initialUsers = [
+  // Администраторы и РОПы
   { id: "1", username: "admin", password: "password123", role: "admin", name: "Admin" },
-  // ROPs
-  { id: "2", username: "danial", password: "password123", role: "rop", name: "Даниал" },
+  { id: "2", username: "danial", password: "password123", role: "rop", name: "Даниял" },
   { id: "3", username: "damir", password: "password123", role: "rop", name: "Дамир" },
   { id: "4", username: "nazerke", password: "password123", role: "rop", name: "Назерке" },
-  { id: "5", username: "abylay", password: "password123", role: "rop", name: "Абылай" },
-  { id: "6", username: "aiaru", password: "password123", role: "rop", name: "Айару" },
+  { id: "5", username: "abylai", password: "password123", role: "rop", name: "Абылай" },
+  { id: "6", username: "ayaru", password: "password123", role: "rop", name: "Айару" },
   { id: "7", username: "sayakhat", password: "password123", role: "rop", name: "Саяхат" },
   { id: "8", username: "madina", password: "password123", role: "rop", name: "Мадина" },
-  // Teachers
-  { id: "9", username: "kymbat", password: "password123", role: "teacher", name: "Қымбат" },
-  { id: "10", username: "dilnaz", password: "password123", role: "teacher", name: "Дильназ" },
-  { id: "11", username: "sabina", password: "password123", role: "teacher", name: "Сабина" },
-  { id: "12", username: "nurkabyl", password: "password123", role: "teacher", name: "Нұрқабыл" },
-  { id: "13", username: "sayazhan", password: "password123", role: "teacher", name: "Саяжан" },
-  { id: "14", username: "nursulu", password: "password123", role: "teacher", name: "Нұрсұлу" },
-  { id: "15", username: "gaziza", password: "password123", role: "teacher", name: "Ғазиза" },
-  { id: "16", username: "danial_teacher", password: "password123", role: "teacher", name: "Даниал" },
-  { id: "17", username: "gulzhan", password: "password123", role: "teacher", name: "Гульжан" },
-  { id: "18", username: "erkemai", password: "password123", role: "teacher", name: "Еркемай" },
-  { id: "19", username: "zhanargul", password: "password123", role: "teacher", name: "Жанаргуль" },
-  { id: "20", username: "dana", password: "password123", role: "teacher", name: "Дана" },
-]
+  { id: "9", username: "aisha", password: "password123", role: "rop", name: "Айша" },
+  { id: "28", username: "togzhan", password: "password123", role: "rop", name: "Тоғжан" },
+  { id: "30", username: "dinara", password: "password123", role: "rop", name: "Динара" },
+
+  // Обновленный список учителей
+  { id: "10", username: "qymbat", password: "password123", role: "teacher", name: "Қымбат" },
+  { id: "11", username: "dilnaz", password: "password123", role: "teacher", name: "Дильназ" },
+  { id: "12", username: "sabina", password: "password123", role: "teacher", name: "Сабина" },
+  { id: "13", username: "nurqabyl", password: "password123", role: "teacher", name: "Нұрқабыл" },
+  { id: "14", username: "sayazhan", password: "password123", role: "teacher", name: "Саяжан" },
+  { id: "15", username: "nursulu", password: "password123", role: "teacher", name: "Нұрсулу" },
+  { id: "16", username: "gaziza", password: "password123", role: "teacher", name: "Ғазиза" },
+  { id: "17", username: "danial", password: "password123", role: "teacher", name: "Даниял" },
+  { id: "18", username: "dana", password: "password123", role: "teacher", name: "Дана" },
+  { id: "19", username: "gulzhan", password: "password123", role: "teacher", name: "Гүлжан" },
+  { id: "20", username: "erkemai", password: "password123", role: "teacher", name: "Еркемай" },
+  { id: "21", username: "zhanargul", password: "password123", role: "teacher", name: "Жанаргуль" },
+];
 
 const ALL_SOURCES = [
-  "Facebook Tilda-Сайт", "Фейсбук Ватсап", "Facebook Ген-лид", "TikTok Target",
-  "Инстаграм сторис", "Инстаграм био", "Телеграм", "Блогер", "База-лид", "Деңгей анықтау",
-]
+  "Facebook Tilda-Сайт",
+  "Фейсбук Ватсап",
+  "Facebook Ген-лид",
+  "TikTok Target",
+  "Инстаграм сторис",
+  "Инстаграм био",
+  "Телеграм",
+  "Блогер",
+  "База-лид",
+  "Деңгей анықтау",
+];
 
 const generateTimeSlots = () => {
-  const slots = []
-  let hour = 9
-  let minute = 0
-  while (hour < 24) {
-    const timeString = `${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}`
-    slots.push(timeString)
-    minute += 40
-    if (minute >= 60) {
-      hour += 1
-      minute -= 60
-    }
+  const slots = [];
+  for (let hour = 9; hour < 22; hour++) {
+      slots.push(`${hour.toString().padStart(2, "0")}:00`);
   }
-  return slots
-}
+  return slots;
+};
 
 // =================================================================
-//                           HELPER FUNCTIONS
+//                     HELPER FUNCTIONS
 // =================================================================
 
 const formatPhoneNumber = (phoneStr) => {
   if (!phoneStr) return "";
   let cleaned = ('' + phoneStr).replace(/\D/g, '');
-  
-  if (cleaned.length === 11 && cleaned.startsWith('8')) {
-    cleaned = '7' + cleaned.slice(1);
-  }
-
-  if (cleaned.length === 10 && !cleaned.startsWith('7')) {
-      cleaned = '7' + cleaned;
-  }
-
+  if (cleaned.length === 11 && cleaned.startsWith('8')) cleaned = '7' + cleaned.slice(1);
+  if (cleaned.length === 10 && !cleaned.startsWith('7')) cleaned = '7' + cleaned;
   const match = cleaned.match(/^7(\d{3})(\d{3})(\d{2})(\d{2})$/);
-  if (match) {
-    return `+7 (${match[1]}) ${match[2]}-${match[3]}-${match[4]}`;
-  }
-  
-  return phoneStr;
+  return match ? `+7 (${match[1]}) ${match[2]}-${match[3]}-${match[4]}` : phoneStr;
+};
+
+// Новая функция для очистки номера для API
+const cleanPhoneNumberForApi = (phoneStr) => {
+    if (!phoneStr) return "";
+    let cleaned = ('' + phoneStr).replace(/\D/g, '');
+    if (cleaned.length === 11 && cleaned.startsWith('8')) {
+        return '7' + cleaned.slice(1);
+    }
+    if (cleaned.startsWith('7') && cleaned.length === 11) {
+        return cleaned;
+    }
+    if (cleaned.length === 10) {
+        return '7' + cleaned;
+    }
+    return phoneStr; // Возвращаем как есть, если формат неизвестен
 };
 
 
-const getRankColor = (index) => {
-  const colors = ["from-yellow-400 to-yellow-600", "from-gray-400 to-gray-600", "from-orange-400 to-orange-600"]
-  return colors[index] || "from-blue-400 to-blue-600"
-}
-
-const getRankIcon = (index) => {
-  const icons = ["👑", "🥈", "🥉"]
-  return icons[index] || index + 1
-}
+const getRankColor = (index) => ["from-yellow-400 to-yellow-600", "from-gray-400 to-gray-600", "from-orange-400 to-orange-600"][index] || "from-blue-400 to-blue-600";
+const getRankIcon = (index) => ["👑", "🥈", "🥉"][index] || index + 1;
 
 const getAppointmentColorForStatus = (status) => {
     switch (status) {
-      case "Оплата":
-        return "bg-gradient-to-r from-green-500 to-green-600 text-white"
-      case "Клиент отказ":
-      case "Каспий отказ":
-        return "bg-gradient-to-r from-red-500 to-red-600 text-white"
-      default:
-        return "bg-gradient-to-r from-blue-500 to-blue-600 text-white"
+      case "Оплата": return "bg-gradient-to-r from-green-500 to-green-600 text-white";
+      case "Клиент отказ": case "Каспий отказ": return "bg-gradient-to-r from-red-500 to-red-600 text-white";
+      default: return "bg-gradient-to-r from-blue-500 to-blue-600 text-white";
     }
 }
 
 // =================================================================
-//                           COMMON COMPONENTS
+//                     COMMON COMPONENTS
 // =================================================================
 
 const Spinner = () => (
@@ -123,60 +165,112 @@ const Spinner = () => (
     <div className="w-8 h-8 border-2 border-gray-200 border-t-blue-500 rounded-full animate-spin"></div>
     <span className="text-sm">Загрузка...</span>
   </div>
-)
+);
 
 const Toast = ({ message, type, isVisible }) => {
-  let bgColor = 'bg-gradient-to-r from-red-500 to-red-600'; // default to error
-  if (type === 'success') {
-    bgColor = 'bg-gradient-to-r from-green-500 to-green-600';
-  } else if (type === 'info') {
-    bgColor = 'bg-gradient-to-r from-blue-500 to-blue-600';
-  }
+  let bgColor = 'bg-gradient-to-r from-red-500 to-red-600';
+  if (type === 'success') bgColor = 'bg-gradient-to-r from-green-500 to-green-600';
+  else if (type === 'info') bgColor = 'bg-gradient-to-r from-blue-500 to-blue-600';
 
   return (
-  <div
-    className={`fixed top-6 right-6 px-4 py-3 md:px-6 md:py-4 rounded-xl text-white font-medium shadow-2xl transition-all duration-300 transform z-50 ${
-      isVisible ? "opacity-100 translate-y-0 scale-100" : "opacity-0 -translate-y-4 scale-95 pointer-events-none"
-    } ${bgColor}`}
-  >
-    <div className="flex items-center gap-3">
-      {type === "success" ? <CheckCircle size={20} /> : type === 'info' ? <Info size={20} /> : <XCircle size={20} />}
-      <span className="font-medium text-sm md:text-base">{message}</span>
+    <div className={`fixed top-6 right-6 px-4 py-3 md:px-6 md:py-4 rounded-xl text-white font-medium shadow-2xl transition-all duration-300 transform z-50 ${isVisible ? "opacity-100 translate-y-0 scale-100" : "opacity-0 -translate-y-4 scale-95 pointer-events-none"} ${bgColor}`}>
+      <div className="flex items-center gap-3">
+        {type === "success" ? <CheckCircle size={20} /> : type === 'info' ? <Info size={20} /> : <XCircle size={20} />}
+        <span className="font-medium text-sm md:text-base">{message}</span>
+      </div>
     </div>
-  </div>
-  )
-}
+  );
+};
 
 const Modal = ({ isVisible, onClose, children, size = "lg" }) => {
-  if (!isVisible) return null
-  const sizeClasses = {
-    sm: "max-w-sm",
-    md: "max-w-md",
-    lg: "max-w-lg",
-    xl: "max-w-xl",
-    "2xl": "max-w-2xl",
-    "4xl": "max-w-4xl",
-    "6xl": "max-w-6xl",
-    full: "max-w-full m-4",
-  }
+  if (!isVisible) return null;
+  const sizeClasses = { sm: "max-w-sm", md: "max-w-md", lg: "max-w-lg", xl: "max-w-xl", "2xl": "max-w-2xl", "4xl": "max-w-4xl", "6xl": "max-w-6xl", full: "max-w-full m-4" };
   return (
-    <div
-      className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50 p-4"
-      onClick={onClose}
-    >
-      <div
-        className={`bg-white rounded-2xl shadow-2xl w-full ${sizeClasses[size]} max-h-[90vh] flex flex-col border border-gray-100`}
-        onClick={(e) => e.stopPropagation()}
-      >
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50 p-4" onClick={onClose}>
+      <div className={`bg-white rounded-2xl shadow-2xl w-full ${sizeClasses[size]} max-h-[90vh] flex flex-col border border-gray-100`} onClick={(e) => e.stopPropagation()}>
         {children}
       </div>
     </div>
-  )
-}
+  );
+};
 
 // =================================================================
-//                          FEATURE COMPONENTS
+//                     FEATURE COMPONENTS
 // =================================================================
+
+const TeacherNotificationSender = () => {
+  const [teacherName, setTeacherName] = useState('');
+  const [studentPhone, setStudentPhone] = useState('');
+  const [lessonTime, setLessonTime] = useState('');
+  const [status, setStatus] = useState({ sending: false, message: '', isError: false });
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setStatus({ sending: true, message: '', isError: false });
+
+    const dataToSend = { 
+        teacherName, 
+        phone: cleanPhoneNumberForApi(studentPhone), 
+        lessonTime 
+    };
+    const options = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(dataToSend)
+    };
+
+    try {
+      const response = await fetch(WEBHOOK_URL, options);
+      if (response.ok) {
+        const responseText = await response.text();
+        setStatus({ sending: false, message: `Уведомление успешно отправлено! Ответ сервера: ${responseText}`, isError: false });
+        setTeacherName('');
+        setStudentPhone('');
+        setLessonTime('');
+      } else {
+        const errorText = await response.text();
+        throw new Error(`Ошибка сервера: ${response.status} ${response.statusText}. ${errorText}`);
+      }
+    } catch (error) {
+      console.error("Критическая ошибка при отправке:", error);
+      setStatus({ sending: false, message: `Ошибка сети: ${error.message}`, isError: true });
+    }
+  };
+
+  return (
+    <div className="w-full max-w-2xl mx-auto bg-white rounded-2xl shadow-xl p-8 space-y-6">
+      <div className="text-center">
+        <h1 className="text-2xl font-bold text-gray-800">Отправить уведомление учителю</h1>
+        <p className="text-gray-500 mt-2">Заполните данные для отправки через вебхук.</p>
+      </div>
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div>
+          <label htmlFor="teacherName" className="block text-sm font-medium text-gray-700 mb-2">Имя учителя</label>
+          <input id="teacherName" type="text" value={teacherName} onChange={(e) => setTeacherName(e.target.value)} className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 transition" placeholder="например, Асем" required />
+        </div>
+        <div>
+          <label htmlFor="studentPhone" className="block text-sm font-medium text-gray-700 mb-2">Телефон ученика</label>
+          <input id="studentPhone" type="tel" value={studentPhone} onChange={(e) => setStudentPhone(e.target.value)} className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 transition" placeholder="например, 77071234567" required />
+        </div>
+        <div>
+          <label htmlFor="lessonTime" className="block text-sm font-medium text-gray-700 mb-2">Время урока</label>
+          <input id="lessonTime" type="time" value={lessonTime} onChange={(e) => setLessonTime(e.target.value)} className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 transition" required />
+        </div>
+        <div>
+          <button type="submit" disabled={status.sending} className="w-full flex items-center justify-center bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 disabled:bg-blue-400 transition-all duration-300">
+            {status.sending ? (<><Loader className="animate-spin mr-2" size={20} />Отправка...</>) : (<><Send className="mr-2" size={20} />Отправить</>)}
+          </button>
+        </div>
+      </form>
+      {status.message && (
+        <div className={`p-4 rounded-lg flex items-center text-sm font-medium ${status.isError ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
+          {status.isError ? <XCircle className="mr-3" /> : <CheckCircle className="mr-3" />}
+          {status.message}
+        </div>
+      )}
+    </div>
+  );
+};
 
 const PlanModal = ({ isVisible, onClose, ropList, plans, onSavePlans }) => {
   const [localPlans, setLocalPlans] = useState({})
@@ -630,7 +724,7 @@ const LoginModal = ({ isVisible, onClose, onLogin }) => {
 }
 
 // =================================================================
-//                            VIEW COMPONENTS
+//                     VIEW COMPONENTS
 // =================================================================
 
 const FormPage = ({ onFormSubmit, ropList, showToast, onShowRating, onShowAdminLogin, onShowSchedule }) => {
@@ -647,20 +741,16 @@ const FormPage = ({ onFormSubmit, ropList, showToast, onShowRating, onShowAdminL
       return;
     }
 
-    // Handle Kazakhstan/Russia country codes (8 -> 7)
     if (digits.startsWith('8')) {
       digits = '7' + digits.slice(1);
     }
     
-    // Ensure the number starts with '7'
     if (!digits.startsWith('7')) {
       digits = '7' + digits;
     }
 
-    // Limit to 11 digits (7 + 10)
     digits = digits.slice(0, 11);
 
-    // Apply the formatting mask
     let formatted = `+${digits[0]}`;
     if (digits.length > 1) {
         formatted += ` (${digits.slice(1, 4)}`;
@@ -685,7 +775,7 @@ const FormPage = ({ onFormSubmit, ropList, showToast, onShowRating, onShowAdminL
 
     const formData = new FormData(e.target)
     const data = Object.fromEntries(formData.entries())
-    data.phone = phone; // Используем отформатированный номер из состояния
+    data.phone = phone;
 
     if (!data.rop) {
       showToast("Пожалуйста, выберите РОП", "error")
@@ -897,6 +987,7 @@ const DistributionView = ({
   const [dragOverCell, setDragOverCell] = useState(null)
   const [selectedEntryForMobile, setSelectedEntryForMobile] = useState(null);
   const [cellToBlock, setCellToBlock] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const isMobile = useMemo(() => {
     if (typeof window !== 'undefined') {
@@ -1006,22 +1097,31 @@ const DistributionView = ({
 
   const today = new Date().toISOString().split("T")[0]
 
+  const filteredBaseEntries = useMemo(() => {
+    if (!searchQuery) return entries;
+    const lowercasedQuery = searchQuery.toLowerCase();
+    return entries.filter(entry => 
+      entry.clientName.toLowerCase().includes(lowercasedQuery) ||
+      (entry.phone && entry.phone.replace(/\D/g, '').includes(lowercasedQuery.replace(/\D/g, '')))
+    );
+  }, [entries, searchQuery]);
+
   const unassignedEntries = useMemo(() => {
-    return entries.filter((e) => {
+    return filteredBaseEntries.filter((e) => {
       const isUnassigned = !e.assignedTeacher;
-      const hasNoStatusOrPending = !e.status || e.status === "Ожидает"; // ИСПРАВЛЕНО: "Перенос" удален
+      const hasNoStatusOrPending = !e.status || e.status === "Ожидает";
       const isFutureOrToday = !e.trialDate || e.trialDate >= today;
       return isUnassigned && hasNoStatusOrPending && isFutureOrToday;
     });
-  }, [entries, today]);
+  }, [filteredBaseEntries, today]);
 
   const rescheduledEntries = useMemo(() => {
-    return entries.filter((e) => {
+    return filteredBaseEntries.filter((e) => {
       const isRescheduled = e.status === "Перенос"
       const isPastAndUnassigned = !e.assignedTeacher && e.trialDate && e.trialDate < today
       return isRescheduled || isPastAndUnassigned
     })
-  }, [entries, today])
+  }, [filteredBaseEntries, today])
 
   const assignedEntriesMap = useMemo(() => {
     const map = new Map()
@@ -1058,6 +1158,18 @@ const DistributionView = ({
         {!readOnly && (
           <div className="lg:col-span-1">
             <div className="lg:sticky lg:top-24 space-y-6 max-h-[calc(100vh-7rem)] overflow-y-auto p-1 rounded-2xl">
+              <div className="p-4 bg-white rounded-2xl shadow-sm border border-gray-100">
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Поиск по имени или телефону..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full p-3 pl-10 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500"
+                  />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                </div>
+              </div>
               <div className="bg-white rounded-2xl border border-gray-100 shadow-sm">
                 <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50">
                   <h3 className="font-bold text-lg text-gray-900 flex items-center gap-3">
@@ -1385,7 +1497,7 @@ const TrialsListView = ({ entries, ropList, onOpenDetails, readOnly = false, onF
               className="w-full p-3 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 font-medium"
             />
           </div>
-           <div>
+            <div>
             <label className="block text-xs font-bold text-gray-700 mb-2">Конец периода</label>
             <input
               type="date"
@@ -2236,7 +2348,7 @@ const TeacherDashboard = (props) => {
 }
 
 // =================================================================
-//                    REFACTORED ANALYTICS COMPONENTS
+//                     REFACTORED ANALYTICS COMPONENTS
 // =================================================================
 
 const StatCard = ({ title, value, icon, gradient }) => (
@@ -2347,7 +2459,7 @@ const TrialSourceChart = ({ title, data }) => (
                             tickFormatter={(value) => `${value}`}
                             style={{ fontSize: '12px', fill: '#6b7280' }}
                         />
-                        <Tooltip formatter={(value) => [`${value} пробных`, 'Количество']} />
+                        <Tooltip formatter={(value, name) => [`${value} пробных`, 'Количество']} />
                         <Bar yAxisId={0} dataKey="count" name="Пробные" fill="#8884d8" radius={[0, 4, 4, 0]} maxBarSize={25}>
                            <LabelList dataKey="name" position="insideLeft" style={{ fill: 'white', fontSize: '12px', fontWeight: 'bold' }} />
                         </Bar>
@@ -2551,7 +2663,7 @@ const AnalyticsView = ({ entries, ropList }) => {
           .sort((a, b) => b.amount - a.amount),
         trialSourceStats: Object.entries(tempTrialSourceStats)
           .map(([name, count]) => ({ name, count }))
-          .sort((a, b) => b.count - a.count),
+          .sort((a, b) => b.count - a.count), // Corrected this line
         funnelStats: funnel,
         correlationData: correlation,
         reachabilityStats: reachability,
@@ -2709,7 +2821,7 @@ const AnalyticsView = ({ entries, ropList }) => {
         <StatCard
           title="Средний чек"
           value={`${averageCheck.toLocaleString("ru-RU", { maximumFractionDigits: 0 })} ₸`}
-          icon={<PieChart className="w-10 h-10 text-white" />}
+          icon={<PieChartIcon className="w-10 h-10 text-white" />}
           gradient="bg-gradient-to-r from-purple-500 to-purple-600"
         />
         <ReachabilityChart stats={reachabilityStats} />
@@ -2752,6 +2864,10 @@ const AdminPage = ({
         return <ConversionView {...props} teacherSchedule={props.teacherSchedule} />
       case "analytics":
         return <AnalyticsView {...props} />
+      case "users":
+        return <UserManagementView {...props} />
+      case "notifications": // Новая вкладка
+        return <TeacherNotificationSender />;
       case "distribution":
       default:
         return (
@@ -2809,8 +2925,147 @@ const AdminPage = ({
   )
 }
 
+const UserManagementView = ({ users, onSaveUser, onDeleteUser }) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentUserToEdit, setCurrentUserToEdit] = useState(null);
+
+  const handleAddNew = () => {
+    setCurrentUserToEdit(null);
+    setIsModalOpen(true);
+  };
+
+  const handleEdit = (user) => {
+    setCurrentUserToEdit(user);
+    setIsModalOpen(true);
+  };
+
+  const handleSave = (userData) => {
+    onSaveUser(userData);
+    setIsModalOpen(false);
+  };
+
+  const handleDelete = (userId) => {
+    // Replace with a custom modal in a real app
+    const isConfirmed = window.confirm("Вы уверены, что хотите удалить этого пользователя?");
+    if (isConfirmed) {
+      onDeleteUser(userId);
+    }
+  };
+
+  return (
+    <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold text-gray-900">Управление пользователями</h2>
+        <button
+          onClick={handleAddNew}
+          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold rounded-xl shadow-lg hover:from-blue-600 hover:to-blue-700 transition-all"
+        >
+          <Plus size={18} />
+          Добавить пользователя
+        </button>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="w-full text-left">
+          <thead>
+            <tr className="bg-gray-50">
+              <th className="p-4 font-bold text-gray-600">Имя</th>
+              <th className="p-4 font-bold text-gray-600">Логин</th>
+              <th className="p-4 font-bold text-gray-600">Роль</th>
+              <th className="p-4 font-bold text-gray-600 text-right">Действия</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-200">
+            {users.map(user => (
+              <tr key={user.id}>
+                <td className="p-4 font-medium text-gray-900">{user.name}</td>
+                <td className="p-4 text-gray-600">{user.username}</td>
+                <td className="p-4 text-gray-600">
+                  <span className={`px-3 py-1 rounded-full text-xs font-semibold ${user.role === 'admin' ? 'bg-red-100 text-red-700' : user.role === 'rop' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'}`}>
+                    {user.role}
+                  </span>
+                </td>
+                <td className="p-4 flex justify-end gap-2">
+                  <button onClick={() => handleEdit(user)} className="p-2 text-gray-500 hover:text-blue-600 hover:bg-gray-100 rounded-lg transition-colors"><Edit size={18} /></button>
+                  <button onClick={() => handleDelete(user.id)} className="p-2 text-gray-500 hover:text-red-600 hover:bg-gray-100 rounded-lg transition-colors"><Trash2 size={18} /></button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      {isModalOpen && (
+        <UserModal
+          user={currentUserToEdit}
+          onClose={() => setIsModalOpen(false)}
+          onSave={handleSave}
+        />
+      )}
+    </div>
+  );
+};
+
+const UserModal = ({ user, onClose, onSave }) => {
+  const [formData, setFormData] = useState({
+    id: user?.id || null,
+    name: user?.name || '',
+    username: user?.username || '',
+    password: '',
+    role: user?.role || 'teacher',
+  });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!formData.name || !formData.username || (!formData.id && !formData.password)) {
+      // Replace with a custom modal/toast in a real app
+      alert("Пожалуйста, заполните все обязательные поля.");
+      return;
+    }
+    onSave(formData);
+  };
+
+  return (
+    <Modal isVisible={true} onClose={onClose} size="md">
+      <div className="p-8">
+        <h3 className="text-2xl font-bold mb-6">{user ? "Редактировать пользователя" : "Добавить пользователя"}</h3>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Имя</label>
+            <input name="name" value={formData.name} onChange={handleChange} className="w-full p-3 border-2 border-gray-200 rounded-xl" required />
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Логин</label>
+            <input name="username" value={formData.username} onChange={handleChange} className="w-full p-3 border-2 border-gray-200 rounded-xl" required />
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Пароль</label>
+            <input type="password" name="password" value={formData.password} onChange={handleChange} className="w-full p-3 border-2 border-gray-200 rounded-xl" placeholder={user ? "Оставьте пустым, чтобы не менять" : ""} required={!user} />
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Роль</label>
+            <select name="role" value={formData.role} onChange={handleChange} className="w-full p-3 border-2 border-gray-200 rounded-xl">
+              <option value="teacher">Учитель</option>
+              <option value="rop">РОП</option>
+              <option value="admin">Администратор</option>
+            </select>
+          </div>
+          <div className="flex justify-end gap-4 pt-4">
+            <button type="button" onClick={onClose} className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg font-semibold">Отмена</button>
+            <button type="submit" className="px-6 py-2 bg-blue-600 text-white rounded-lg font-semibold">Сохранить</button>
+          </div>
+        </form>
+      </div>
+    </Modal>
+  );
+};
+
+
 // =================================================================
-//                         MAIN APP COMPONENT
+//                     MAIN APP COMPONENT
 // =================================================================
 
 export default function App() {
@@ -2822,10 +3077,15 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [entries, setEntries] = useState([]);
   const [blockedSlots, setBlockedSlots] = useState([])
+  const [users, setUsers] = useState(initialUsers);
 
-  const ropList = useMemo(() => demoUsers.filter((u) => u.role === "rop"), [])
-  const teacherList = useMemo(() => demoUsers.filter((u) => u.role === "teacher").map((t) => t.name), [])
-  const [teacherSchedule] = useState({ teachers: teacherList, timeSlots: generateTimeSlots() })
+  const ropList = useMemo(() => users.filter((u) => u.role === "rop"), [users])
+  const teacherList = useMemo(() => users.filter((u) => u.role === "teacher").map((t) => t.name), [users])
+  const [teacherSchedule, setTeacherSchedule] = useState({ teachers: teacherList, timeSlots: generateTimeSlots() })
+  
+  useEffect(() => {
+    setTeacherSchedule({ teachers: teacherList, timeSlots: generateTimeSlots() })
+  }, [teacherList]);
 
   const [toast, setToast] = useState({ isVisible: false, message: "", type: "" })
   const [showLoginModal, setShowLoginModal] = useState(false)
@@ -2867,7 +3127,7 @@ export default function App() {
     }
   }, [showToastMessage]);
 
-  // Эффект для первоначальной загрузки данных и восстановления сессии
+  // Effect for initial data loading and session restoration
   useEffect(() => {
     const loadInitialData = async () => {
         setIsLoading(true);
@@ -2883,21 +3143,21 @@ export default function App() {
     loadInitialData();
   }, [fetchEntries, fetchBlockedSlots]);
 
-  // Эффект для периодического обновления данных (polling)
+  // Effect for periodic data fetching (polling)
   useEffect(() => {
-    if (currentUser) { // Обновляем данные только если пользователь вошел в систему
+    if (currentUser) { // Only fetch if user is logged in
         const interval = setInterval(() => {
             fetchEntries();
             fetchBlockedSlots();
-        }, 15000); // каждые 15 секунд
+        }, 15000); // every 15 seconds
 
-        return () => clearInterval(interval); // Очистка при размонтировании
+        return () => clearInterval(interval); // Cleanup on unmount
     }
   }, [currentUser, fetchEntries, fetchBlockedSlots]);
 
 
   const handleLogin = (username, password) => {
-    const user = demoUsers.find((u) => u.username === username && u.password === password)
+    const user = users.find((u) => u.username === username && u.password === password)
     if (user) {
       const userToStore = { name: user.name, role: user.role };
       localStorage.setItem('currentUser', JSON.stringify(userToStore));
@@ -2945,26 +3205,97 @@ export default function App() {
   }
 
   const handleSavePlans = async (newPlans) => {
-    // TODO: Добавить логику сохранения планов на бэкенд
     setPlans(newPlans)
     showToastMessage("Планы сохранены (локально)", "success")
   }
 
+  const handleWebhook = async (originalEntry, updatedEntry) => {
+    const wasAssigned = originalEntry.assignedTeacher && originalEntry.assignedTime;
+    const isNowAssigned = updatedEntry.assignedTeacher && updatedEntry.assignedTime;
+
+    const cleanedPhone = cleanPhoneNumberForApi(originalEntry.phone);
+
+    // Случай 1: Отмена или перенос назначенного урока
+    if (wasAssigned && (!isNowAssigned || ["Перенос", "Клиент отказ", "Каспий отказ"].includes(updatedEntry.status))) {
+        const lessonIdentifier = `${originalEntry.assignedTeacher}-${cleanedPhone}-${originalEntry.assignedTime}`;
+        const payload = {
+            lessonIdentifier,
+            action: "cancel",
+        };
+        try {
+            await fetch(RESCHEDULE_WEBHOOK_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            showToastMessage("Уведомление об отмене урока отправлено", "info");
+        } catch (e) {
+            console.error("Ошибка при отправке вебхука отмены:", e);
+            showToastMessage("Ошибка отправки вебхука отмены", "error");
+        }
+    }
+
+    // Случай 2: Назначение нового урока (ранее не был назначен)
+    if (!wasAssigned && isNowAssigned) {
+        const payload = {
+            teacherName: updatedEntry.assignedTeacher,
+            phone: cleanedPhone,
+            lessonTime: updatedEntry.assignedTime,
+        };
+        try {
+            await fetch(WEBHOOK_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            showToastMessage("Уведомление о новом уроке отправлено", "info");
+        } catch (e) {
+            console.error("Ошибка при отправке вебхука назначения:", e);
+            showToastMessage("Ошибка отправки вебхука назначения", "error");
+        }
+    }
+
+    // Случай 3: Перенос назначенного урока на другое время/дату
+    if (wasAssigned && isNowAssigned && (originalEntry.assignedTime !== updatedEntry.assignedTime || originalEntry.trialDate !== updatedEntry.trialDate)) {
+        const lessonIdentifier = `${originalEntry.assignedTeacher}-${cleanedPhone}-${originalEntry.assignedTime}`;
+        const payload = {
+            lessonIdentifier,
+            action: "reschedule",
+            newLessonTime: updatedEntry.assignedTime,
+        };
+        try {
+            await fetch(RESCHEDULE_WEBHOOK_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            showToastMessage("Уведомление о переносе урока отправлено", "info");
+        } catch (e) {
+            console.error("Ошибка при отправке вебхука переноса:", e);
+            showToastMessage("Ошибка отправки вебхука переноса", "error");
+        }
+    }
+};
+
+
   const handleUpdateEntry = async (entryId, dataToUpdate) => {
-    // Оптимистичное обновление UI
-    const originalEntries = entries;
+    const originalEntry = entries.find(e => e.id === entryId);
+    if (!originalEntry) {
+        showToastMessage("Не удалось найти исходную запись для обновления.", "error");
+        return;
+    }
+    
+    // Оптимистичное обновление
     const updatedEntries = entries.map(entry =>
         entry.id === entryId ? { ...entry, ...dataToUpdate } : entry
     );
     setEntries(updatedEntries);
 
     try {
-        // 1. Обновляем данные в основной базе данных
+        // 1. Обновляем основную базу данных
         const response = await fetch(`${API_URL}/api/entries/${entryId}`, {
             method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(dataToUpdate),
         });
 
@@ -2973,13 +3304,15 @@ export default function App() {
         }
         showToastMessage("Данные успешно обновлены!", "success");
 
-        // 2. Обновляем статус в Google Sheets
+        // 2. Логика вебхуков
+        await handleWebhook(originalEntry, dataToUpdate);
+
+        // 3. Обновляем Google Sheets
         const sheetUpdateData = {
           action: 'update',
-          phone: dataToUpdate.phone, // Используем телефон как уникальный ключ
-          status: dataToUpdate.status // Отправляем новый статус
+          phone: dataToUpdate.phone,
+          status: dataToUpdate.status
         };
-
         fetch(GOOGLE_SCRIPT_URL, {
             method: 'POST',
             mode: 'no-cors',
@@ -2989,7 +3322,7 @@ export default function App() {
     } catch (error) {
         console.error("Ошибка при обновлении заявки:", error);
         showToastMessage("Не удалось обновить данные на сервере", "error");
-        setEntries(originalEntries);
+        setEntries(entries); // Откат оптимистичного обновления
     }
   }
 
@@ -3001,12 +3334,11 @@ export default function App() {
     const creationDate = new Date();
     const newEntryData = {
         ...data,
-        createdAt: creationDate.toISOString(), // Отправляем в ISO формате
+        createdAt: creationDate.toISOString(),
         status: "Ожидает",
     };
 
     try {
-        // Отправка данных на бэкенд
         const response = await fetch(`${API_URL}/api/entries`, {
             method: 'POST',
             headers: {
@@ -3021,12 +3353,10 @@ export default function App() {
 
         const savedEntry = await response.json();
         
-        // Добавляем новую запись в начало списка для немедленного отображения
         setEntries(prev => [{ ...savedEntry, createdAt: new Date(savedEntry.createdAt) }, ...prev]);
 
         showToastMessage("Заявка успешно сохранена на сервере!", "success");
 
-        // Отправка в Google Sheets
         const sheetData = { ...newEntryData, createdAt: creationDate.toLocaleString('ru-RU', { timeZone: 'Asia/Almaty' }) };
 
         fetch(GOOGLE_SCRIPT_URL, {
@@ -3039,14 +3369,13 @@ export default function App() {
         console.error("Ошибка при сохранении заявки:", error);
         showToastMessage("Не удалось сохранить заявку на сервере", "error");
     }
-};
+  };
 
   const handleToggleBlockSlot = async (date, teacher, time) => {
     const docId = `${date}_${teacher}_${time}`;
     const isBlocked = blockedSlots.some(slot => slot.id === docId);
     
-    // Оптимистичное обновление
-    const originalSlots = blockedSlots;
+    const originalSlots = [...blockedSlots];
     if (isBlocked) {
         setBlockedSlots(prev => prev.filter(slot => slot.id !== docId));
     } else {
@@ -3055,14 +3384,12 @@ export default function App() {
 
     try {
         if (isBlocked) {
-            // Удаляем блокировку
             const response = await fetch(`${API_URL}/api/blocked-slots/${docId}`, {
                 method: 'DELETE',
             });
             if (!response.ok) throw new Error("Ошибка при разблокировке");
             showToastMessage("Слот разблокирован", "success");
         } else {
-            // Добавляем блокировку
             const response = await fetch(`${API_URL}/api/blocked-slots`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -3077,6 +3404,22 @@ export default function App() {
         setBlockedSlots(originalSlots);
     }
   };
+  
+  const handleSaveUser = (userData) => {
+    if (userData.id) {
+      setUsers(users.map(u => u.id === userData.id ? {...u, ...userData, password: userData.password || u.password} : u));
+      showToastMessage("Пользователь обновлен!", "success");
+    } else {
+      const newUser = { ...userData, id: Date.now().toString() };
+      setUsers([...users, newUser]);
+      showToastMessage("Пользователь добавлен!", "success");
+    }
+  };
+
+  const handleDeleteUser = (userId) => {
+    setUsers(users.filter(u => u.id !== userId));
+    showToastMessage("Пользователь удален!", "success");
+  };
 
   const dashboardTabs = [
     { id: "distribution", label: "Распределение", adminOnly: true },
@@ -3084,6 +3427,8 @@ export default function App() {
     { id: "leaderboard", label: "Рейтинг", adminOnly: false },
     { id: "conversion", label: "Конверсия", adminOnly: true },
     { id: "analytics", label: "Аналитика", adminOnly: true },
+    { id: "users", label: "Пользователи", adminOnly: true },
+    { id: "notifications", label: "Уведомления", adminOnly: true },
   ]
 
   const publicUser = { name: "Guest", role: "public" }
@@ -3121,22 +3466,22 @@ export default function App() {
     const assignedEntriesMap = useMemo(() => {
       const map = new Map()
       props.entries.forEach((e) => {
-        if (e.assignedTeacher && e.assignedTime && e.trialDate === localDate) {
-          map.set(`${e.assignedTeacher}-${e.assignedTime}`, e)
+        if (e.assignedTeacher && e.assignedTime && e.trialDate) { // Ensure trialDate exists
+          map.set(`${e.assignedTeacher}-${e.trialDate}-${e.assignedTime}`, e)
         }
       })
       return map
-    }, [props.entries, localDate])
+    }, [props.entries]) // Depend only on entries, localDate is not needed here
 
     const blockedSlotsMap = useMemo(() => {
       const map = new Map()
       props.blockedSlots.forEach((slot) => {
-        if (slot.date === localDate) {
-          map.set(`${slot.teacher}_${slot.time}`, true)
+        if (slot.teacher && slot.date && slot.time) { // Ensure all parts exist
+          map.set(`${slot.teacher}_${slot.date}_${slot.time}`, true)
         }
       })
       return map
-    }, [props.blockedSlots, localDate])
+    }, [props.blockedSlots]) // Depend only on blockedSlots, localDate is not needed here
 
     return (
       <Modal isVisible={true} onClose={onClose} size="full">
@@ -3185,23 +3530,30 @@ export default function App() {
                       {time}
                     </td>
                     {props.teacherSchedule.teachers.map((teacher) => {
-                      const entry = assignedEntriesMap.get(`${teacher}-${time}`)
-                      const isBlocked = blockedSlotsMap.has(`${teacher}_${time}`)
+                      // Correctly access entries and blocked slots using the full key
+                      const entry = assignedEntriesMap.get(`${teacher}-${localDate}-${time}`);
+                      const isBlocked = blockedSlotsMap.has(`${teacher}_${localDate}_${time}`);
                       return (
                         <td key={`${teacher}-${time}`} className="p-2 border-b border-gray-100 h-20 text-center">
                           <div
-                            onClick={() => entry && props.onOpenDetails(entry, true)}
+                            onClick={() => !entry && props.onToggleBlockSlot(localDate, teacher, time)}
                             className={`h-full w-full rounded-xl border flex flex-col items-center justify-center p-1 text-xs font-semibold transition-all ${
                               entry ? `${getAppointmentColorForStatus(entry.status)} cursor-pointer` : 
                               isBlocked ? "bg-gray-200 border-gray-200" : "bg-green-50 border-green-200"
                             }`}
                           >
                             {entry ? (
-                              <>
+                              <div
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  props.onOpenDetails(entry, true)
+                                }}
+                                className={`h-full w-full flex flex-col items-center justify-center text-white rounded-lg p-2 text-xs font-semibold cursor-pointer transition-all hover:scale-105 shadow-lg transform ${getAppointmentColorForStatus(entry.status)}`}
+                              >
                                 <span className="font-bold truncate">{entry.clientName}</span>
                                 <span className="opacity-80 truncate">{entry.status}</span>
                                 {entry.paymentAmount > 0 && <span className="opacity-80 truncate">{entry.paymentAmount.toLocaleString("ru-RU")} ₸</span>}
-                              </>
+                              </div>
                             ) : isBlocked ? (
                               <Lock className="w-5 h-5 text-gray-400" />
                             ) : (
@@ -3275,6 +3627,7 @@ export default function App() {
             teacherSchedule={teacherSchedule}
             blockedSlots={blockedSlots}
             onOpenDetails={handleOpenDetails}
+            onToggleBlockSlot={handleToggleBlockSlot} // Pass to PublicScheduleModal
           />
         )
 
@@ -3297,6 +3650,9 @@ export default function App() {
           onSavePlans: handleSavePlans,
           currentUser,
           onUpdateEntry: handleUpdateEntry,
+          users,
+          onSaveUser: handleSaveUser,
+          onDeleteUser: handleDeleteUser,
         }
 
         const dashboardContent = (() => {
