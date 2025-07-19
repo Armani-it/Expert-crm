@@ -55,7 +55,7 @@ import {
 } from "recharts";
 
 // =================================================================
-//                     CONFIGURATION
+//                          CONFIGURATION
 // =================================================================
 const API_URL = "https://backend-expert-crm.onrender.com";
 const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxXA8JQ0sQ1gxFQYGhgo995CFq3CrbgSPMnkHez0Up7PzWhsoFAbQMj3CoI15dJmEU_Uw/exec";
@@ -63,7 +63,7 @@ const WEBHOOK_URL = "https://akcent.online/webhook";
 const RESCHEDULE_WEBHOOK_URL = "https://akcent.online/reschedule-webhook";
 
 // =================================================================
-//                     DEMO DATA & CONSTANTS
+//                          DEMO DATA & CONSTANTS
 // =================================================================
 const initialUsers = [
   // Администраторы и РОПы
@@ -78,6 +78,7 @@ const initialUsers = [
   { id: "9", username: "aisha", password: "password123", role: "rop", name: "Айша" },
   { id: "28", username: "togzhan", password: "password123", role: "rop", name: "Тоғжан" },
   { id: "30", username: "dinara", password: "password123", role: "rop", name: "Динара" },
+  { id: "31", username: "akcent", password: "password123", role: "rop", name: "Akcent" },
 
   // Обновленный список учителей
   { id: "10", username: "qymbat", password: "password123", role: "teacher", name: "Қымбат" },
@@ -109,14 +110,25 @@ const ALL_SOURCES = [
 
 const generateTimeSlots = () => {
   const slots = [];
-  for (let hour = 9; hour < 22; hour++) {
-      slots.push(`${hour.toString().padStart(2, "0")}:00`);
+  let hour = 9;
+  let minute = 0;
+
+  while (hour < 23 || (hour === 23 && minute <= 40)) {
+    const formattedHour = hour.toString().padStart(2, "0");
+    const formattedMinute = minute.toString().padStart(2, "0");
+    slots.push(`${formattedHour}:${formattedMinute}`);
+
+    minute += 40;
+    if (minute >= 60) {
+      hour++;
+      minute -= 60;
+    }
   }
   return slots;
 };
 
 // =================================================================
-//                     HELPER FUNCTIONS
+//                          HELPER FUNCTIONS
 // =================================================================
 
 const formatPhoneNumber = (phoneStr) => {
@@ -157,7 +169,7 @@ const getAppointmentColorForStatus = (status) => {
 }
 
 // =================================================================
-//                     COMMON COMPONENTS
+//                          COMMON COMPONENTS
 // =================================================================
 
 const Spinner = () => (
@@ -195,7 +207,7 @@ const Modal = ({ isVisible, onClose, children, size = "lg" }) => {
 };
 
 // =================================================================
-//                     FEATURE COMPONENTS
+//                          FEATURE COMPONENTS
 // =================================================================
 
 const TeacherNotificationSender = () => {
@@ -724,7 +736,7 @@ const LoginModal = ({ isVisible, onClose, onLogin }) => {
 }
 
 // =================================================================
-//                     VIEW COMPONENTS
+//                          VIEW COMPONENTS
 // =================================================================
 
 const FormPage = ({ onFormSubmit, ropList, showToast, onShowRating, onShowAdminLogin, onShowSchedule }) => {
@@ -1709,7 +1721,7 @@ const LeaderboardView = ({ entries, ropList, currentUser, plans, onSavePlans }) 
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
-       <div className={`flex items-center ${currentUser?.role === 'public' ? 'justify-center' : 'justify-end'}`}>
+        <div className={`flex items-center ${currentUser?.role === 'public' ? 'justify-center' : 'justify-end'}`}>
         {currentUser?.role === 'public' && (
           <div className="text-center">
             <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-r from-yellow-400 to-yellow-600 rounded-3xl mb-6 shadow-2xl">
@@ -2348,7 +2360,7 @@ const TeacherDashboard = (props) => {
 }
 
 // =================================================================
-//                     REFACTORED ANALYTICS COMPONENTS
+//                          REFACTORED ANALYTICS COMPONENTS
 // =================================================================
 
 const StatCard = ({ title, value, icon, gradient }) => (
@@ -3065,7 +3077,7 @@ const UserModal = ({ user, onClose, onSave }) => {
 
 
 // =================================================================
-//                     MAIN APP COMPONENT
+//                          MAIN APP COMPONENT
 // =================================================================
 
 export default function App() {
