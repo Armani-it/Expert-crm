@@ -59,8 +59,8 @@ import {
 // =================================================================
 const API_URL = "https://backend-expert-crm.onrender.com";
 const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxXA8JQ0sQ1gxFQYGhgo995CFq3CrbgSPMnkHez0Up7PzWhsoFAbQMj3CoI15dJmEU_Uw/exec";
-const WEBHOOK_URL = "https://akcent.online/webhook";
-const RESCHEDULE_WEBHOOK_URL = "https://akcent.online/reschedule-webhook";
+const WEBHOOK_URL = "https://api.akcent.online/webhook";
+const RESCHEDULE_WEBHOOK_URL = "https://api.akcent.online/reschedule-webhook";
 
 // =================================================================
 //                          DEMO DATA & CONSTANTS
@@ -78,7 +78,7 @@ const initialUsers = [
   { id: "9", username: "aisha", password: "password123", role: "rop", name: "Айша" },
   { id: "28", username: "togzhan", password: "password123", role: "rop", name: "Тоғжан" },
   { id: "30", username: "dinara", password: "password123", role: "rop", name: "Динара" },
-  { id: "31", username: "akcent", password: "password123", role: "rop", name: "Akcent" },
+  { id: "31", username: "Ak", password: "password123", role: "rop", name: "Динара" },
 
   // Обновленный список учителей
   { id: "10", username: "qymbat", password: "password123", role: "teacher", name: "Қымбат" },
@@ -88,7 +88,7 @@ const initialUsers = [
   { id: "14", username: "sayazhan", password: "password123", role: "teacher", name: "Саяжан" },
   { id: "15", username: "nursulu", password: "password123", role: "teacher", name: "Нұрсулу" },
   { id: "16", username: "gaziza", password: "password123", role: "teacher", name: "Ғазиза" },
-  { id: "17", username: "danial", password: "password123", role: "teacher", name: "Даниял" },
+  { id: "17", username: "daniall", password: "password123", role: "teacher", name: "Даниял" },
   { id: "18", username: "dana", password: "password123", role: "teacher", name: "Дана" },
   { id: "19", username: "gulzhan", password: "password123", role: "teacher", name: "Гүлжан" },
   { id: "20", username: "erkemai", password: "password123", role: "teacher", name: "Еркемай" },
