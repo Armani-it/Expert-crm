@@ -66,14 +66,15 @@ const RESCHEDULE_WEBHOOK_URL = "https://api.akcent.online/reschedule-webhook";
 // =================================================================
 //                          DEMO DATA & CONSTANTS
 // =================================================================
+// =================================================================
 const initialUsers = [
   // Администраторы и РОПы
   { id: "1", username: "admin", password: "password123", role: "admin", name: "Admin" },
   { id: "2", username: "danial", password: "password123", role: "rop", name: "Даниял" },
+  { id: "34", username: "akcent", password: "password123", role: "rop", name: "Акцент" },
   { id: "3", username: "damir", password: "password123", role: "rop", name: "Дамир" },
   { id: "4", username: "nazerke", password: "password123", role: "rop", name: "Назерке" },
   { id: "5", username: "abylai", password: "password123", role: "rop", name: "Абылай" },
-  { id: "6", username: "ayaru", password: "password123", role: "rop", name: "Айару" },
   { id: "7", username: "sayakhat", password: "password123", role: "rop", name: "Саяхат" },
   { id: "8", username: "madina", password: "password123", role: "rop", name: "Мадина" },
   { id: "9", username: "aisha", password: "password123", role: "rop", name: "Айша" },
@@ -82,22 +83,23 @@ const initialUsers = [
   { id: "31", username: "Ak", password: "password123", role: "rop", name: "Динара" },
 
   // Обновленный список учителей
-  { id: "10", username: "qymbat", password: "password123", role: "teacher", name: "Қымбат" },
-  { id: "11", username: "dilnaz", password: "password123", role: "teacher", name: "Дильназ" },
-  { id: "12", username: "sabina", password: "password123", role: "teacher", name: "Сабина" },
-  { id: "13", username: "nurqabyl", password: "password123", role: "teacher", name: "Нұрқабыл" },
-  { id: "14", username: "sayazhan", password: "password123", role: "teacher", name: "Саяжан" },
   { id: "15", username: "nursulu", password: "password123", role: "teacher", name: "Нұрсулу" },
   { id: "16", username: "gaziza", password: "password123", role: "teacher", name: "Ғазиза" },
-  { id: "17", username: "daniall", password: "password123", role: "teacher", name: "Даниял" },
   { id: "18", username: "dana", password: "password123", role: "teacher", name: "Дана" },
+  { id: "11", username: "dilnaz", password: "password123", role: "teacher", name: "Дильназ" },
+  { id: "13", username: "nurqabyl", password: "password123", role: "teacher", name: "Нұрқабыл" },
+  { id: "10", username: "qymbat", password: "password123", role: "teacher", name: "Қымбат" },
+  { id: "22", username: "dinaraTeach", password: "password123", role: "teacher", name: "Динара" },
   { id: "19", username: "gulzhan", password: "password123", role: "teacher", name: "Гүлжан" },
-  { id: "20", username: "erkemai", password: "password123", role: "teacher", name: "Еркемай" },
   { id: "21", username: "zhanargul", password: "password123", role: "teacher", name: "Жанаргуль" },
+  { id: "17", username: "daniall", password: "password123", role: "teacher", name: "Даниял" },
+  { id: "20", username: "erkemai", password: "password123", role: "teacher", name: "Еркемай" },
+  { id: "32", username: "primoy", password: "password123", role: "teacher", name: "Прямой" },
 ];
 
 const ALL_SOURCES = [
   "Facebook Tilda-Сайт",
+  "Прямой",
   "Фейсбук Ватсап",
   "Facebook Ген-лид",
   "TikTok Target",
@@ -753,6 +755,7 @@ const FormPage = ({ onFormSubmit, ropList, showToast, onShowRating, onShowAdminL
   const [trialTime, setTrialTime] = useState('');
   const [source, setSource] = useState('');
   const [comment, setComment] = useState('');
+  const [id, setId] = useState('');
 
   const handlePhoneInputChange = (e) => {
     const rawValue = e.target.value;
@@ -791,13 +794,10 @@ const FormPage = ({ onFormSubmit, ropList, showToast, onShowRating, onShowAdminL
   };
 
   function formatPhone(rawValue) {
-    // Extract digits only
     let digits = rawValue.replace(/\D/g, '');
 
-    // Return empty if no digits
     if (digits.length === 0) return '';
 
-    // Normalize to start with 7
     if (digits.startsWith('8')) {
       digits = '7' + digits.slice(1);
     }
@@ -805,10 +805,8 @@ const FormPage = ({ onFormSubmit, ropList, showToast, onShowRating, onShowAdminL
       digits = '7' + digits;
     }
 
-    // Limit to 11 digits
     digits = digits.slice(0, 11);
 
-    // Format as +7 (XXX) XXX-XX-XX
     let formatted = `+${digits[0]}`;
     if (digits.length > 1) {
       formatted += ` (${digits.slice(1, 4)}`;
@@ -838,6 +836,8 @@ const FormPage = ({ onFormSubmit, ropList, showToast, onShowRating, onShowAdminL
     data.rop = rop;
     data.comment = comment;
     data.sourse = source;
+    
+    
 
     if (!data.rop) {
       showToast("Пожалуйста, выберите РОП", "error")
@@ -847,10 +847,23 @@ const FormPage = ({ onFormSubmit, ropList, showToast, onShowRating, onShowAdminL
 
     await onFormSubmit(data)
 
+    fetch(`https://us-central1-akcent-academy.cloudfunctions.net/deleteCard?id=${id}`)
+      .then((res) => {
+        console.log(id);
+        if (!res.ok) throw new Error('Ошибка при удалении');
+        return res.json();
+      })
+      .then(() => {
     setIsSubmitting(false)
     e.target.reset()
     setPhone("");
     setShowSuccess(true)
+      })
+      .catch((error) => {
+        console.error('Ошибка удаления:', error);
+        alert('Не удалось удалить карточку');
+      });
+
   }
 
 
@@ -864,12 +877,24 @@ useEffect(() => {
   const timeParam = params.get('trialTime');
   const sourceParam = params.get('sourse');
   const commentParam = params.get('comment');
+  const id_ = params.get('id');
 
   if (clientNameParam) setClientName(clientNameParam);
   if (phoneParam) formatPhone(phoneParam);
   if (ropParam) setRop(ropParam);
-  if (dateParam) setTrialDate(dateParam);
-  if (timeParam) setTrialTime(timeParam);
+  if (id_) setId(id_);
+  
+  if (dateParam && dateParam.length > 2) {
+    setTrialDate(dateParam);
+  }else {
+    const today = new Date().toISOString().split('T')[0];
+    setTrialDate(today);
+  }
+  if (timeParam && timeParam.length > 2) {
+    setTrialTime(timeParam);
+  }else {
+    setTrialTime("00:00");
+  };
   if (sourceParam) setSource(sourceParam);
   if (commentParam) setComment(commentParam);
   console.log(trialDate);
@@ -2671,6 +2696,8 @@ const AnalyticsView = ({ entries, ropList }) => {
     activeQuickFilter: "month",
   })
 
+  
+
   const filteredEntries = useMemo(() => {
     const start = filters.startDate ? new Date(filters.startDate) : null
     const end = filters.endDate ? new Date(filters.endDate) : null
@@ -2686,6 +2713,14 @@ const AnalyticsView = ({ entries, ropList }) => {
       return dateMatch && sourceMatch && ropMatch
     })
   }, [entries, filters])
+
+  useEffect(() => {
+  console.log("Фильтр:", filters)
+  console.log("Фильтрованные заявки:", filteredEntries.length)
+  console.log("Статусы:", filteredEntries.map(e => e.status))
+  console.log("Оплаты:", filteredEntries.filter(e => e.status === "Оплата"))
+}, [filteredEntries, filters])
+
 
   const { totalCash, averageCheck, sourceStats, ropStats, funnelStats, correlationData, reachabilityStats, trialSourceStats } =
     useMemo(() => {
@@ -2712,6 +2747,7 @@ const AnalyticsView = ({ entries, ropList }) => {
       const scheduledTrials = filteredEntries.filter((e) => ["Назначен", "Проведен", "Оплата"].includes(e.status)).length
       const conductedTrials = filteredEntries.filter((e) => ["Проведен", "Оплата"].includes(e.status)).length
 
+      console.log(filteredEntries);
       const funnel = {
         total: filteredEntries.length,
         conducted: conductedTrials,
