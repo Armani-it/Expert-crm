@@ -100,6 +100,7 @@ const initialUsers = [
 const ALL_SOURCES = [
   "Facebook Tilda-Сайт",
   "Прямой",
+  "Акцент",
   "Фейсбук Ватсап",
   "Facebook Ген-лид",
   "TikTok Target",
