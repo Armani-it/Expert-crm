@@ -157,12 +157,13 @@ const initialUsers = [
   },
 
   // Обновленный список учителей
+
   {
-    id: "15",
-    username: "nursulu",
+    id: "33",
+    username: "sabina",
     password: "password123",
     role: "teacher",
-    name: "Нұрсулу",
+    name: "Сәбина",
   },
   {
     id: "16",
@@ -179,11 +180,25 @@ const initialUsers = [
     name: "Дана",
   },
   {
-    id: "11",
-    username: "dilnaz",
+    id: "10",
+    username: "qymbat",
     password: "password123",
     role: "teacher",
-    name: "Дильназ",
+    name: "Қымбат",
+  },
+  {
+    id: "15",
+    username: "nursulu",
+    password: "password123",
+    role: "teacher",
+    name: "Нұрсулу",
+  },
+  {
+    id: "34",
+    username: "nazerke",
+    password: "password123",
+    role: "teacher",
+    name: "Назерке",
   },
   {
     id: "13",
@@ -193,13 +208,6 @@ const initialUsers = [
     name: "Нұрқабыл",
   },
   {
-    id: "10",
-    username: "qymbat",
-    password: "password123",
-    role: "teacher",
-    name: "Қымбат",
-  },
-  {
     id: "22",
     username: "dinaraTeach",
     password: "password123",
@@ -207,11 +215,18 @@ const initialUsers = [
     name: "Динара",
   },
   {
-    id: "19",
-    username: "gulzhan",
+    id: "11",
+    username: "dilnaz",
     password: "password123",
     role: "teacher",
-    name: "Гүлжан",
+    name: "Дильназ",
+  },
+  {
+    id: "35",
+    username: "aizhan",
+    password: "password123",
+    role: "teacher",
+    name: "Айжан",
   },
   {
     id: "21",
@@ -221,32 +236,11 @@ const initialUsers = [
     name: "Жанаргуль",
   },
   {
-    id: "17",
-    username: "daniall",
-    password: "password123",
-    role: "teacher",
-    name: "Даниял",
-  },
-  {
-    id: "20",
-    username: "erkemai",
-    password: "password123",
-    role: "teacher",
-    name: "Еркемай",
-  },
-  {
     id: "32",
     username: "primoy",
     password: "password123",
     role: "teacher",
     name: "Прямой",
-  },
-  {
-    id: "33",
-    username: "sabina",
-    password: "password123",
-    role: "teacher",
-    name: "Сәбина",
   },
 ];
 
@@ -1260,7 +1254,7 @@ const FormPage = ({
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white flex justify-center">
-      <div className="max-w-4xl mx-auto pt-12 pb-20 px-6">
+      <div className="w-[60%] mx-auto pt-12 pb-20 px-6">
         <SuccessModal
           isVisible={showSuccess}
           onClose={() => setShowSuccess(false)}
@@ -1500,6 +1494,7 @@ const DistributionView = ({
     []
   );
 
+  const today = new Date().toISOString().split("T")[0];
   const [rescheduleDate, setRescheduleDate] = useState(selectedDate || today);
 
   const isMobile = useMemo(() => {
@@ -1612,8 +1607,6 @@ const DistributionView = ({
     }
   };
 
-  const today = new Date().toISOString().split("T")[0];
-
   const filteredBaseEntries = useMemo(() => {
     if (!searchQuery) return entries;
     const lowercasedQuery = searchQuery.toLowerCase();
@@ -1664,30 +1657,38 @@ const DistributionView = ({
     return map;
   }, [blockedSlots]);
 
-  const filteredRescheduledEntriesS = useMemo(() => {
-    if (!searchReScheduleQuery) return rescheduledEntries;
-    const q = searchReScheduleQuery.toLowerCase();
-    return rescheduledEntries.filter(
-      (e) =>
-        e.clientName.toLowerCase().includes(q) ||
-        (e.phone && e.phone.replace(/\D/g, "").includes(q.replace(/\D/g, "")))
-    );
-  }, [rescheduledEntries, searchReScheduleQuery]);
-
   useEffect(() => {
     if (activeTab === "rescheduled" && selectedDate) {
       setRescheduleDate(selectedDate);
     }
   }, [activeTab, selectedDate]);
 
+  // удаляй весь блок filteredRescheduledEntriesS useMemo — он больше не нужен
+
   useEffect(() => {
-    console.log(rescheduleDate);
-    setFilteredRescheduledEntries(
-      !rescheduleDate
-        ? rescheduledEntries
-        : rescheduledEntries.filter((e) => e.trialDate === rescheduleDate)
-    );
-  }, [rescheduleDate, rescheduledEntries]);
+    const q = (searchReScheduleQuery || "").toLowerCase().replace(/\D/g, "");
+
+    // сначала по дате
+    const byDate = !rescheduleDate
+      ? rescheduledEntries
+      : rescheduledEntries.filter((e) => e.trialDate === rescheduleDate);
+
+    // затем по запросу (имя/телефон)
+    const byQuery = !searchReScheduleQuery
+      ? byDate
+      : byDate.filter((e) => {
+          const nameOk = (e.clientName || "")
+            .toLowerCase()
+            .includes((searchReScheduleQuery || "").toLowerCase());
+
+          const digits = (e.phone || "").replace(/\D/g, "");
+          const phoneOk = digits.includes(q);
+
+          return nameOk || phoneOk;
+        });
+
+    setFilteredRescheduledEntries(byQuery);
+  }, [rescheduleDate, searchReScheduleQuery, rescheduledEntries]);
 
   return (
     <div className="space-y-6">
@@ -1760,13 +1761,28 @@ const DistributionView = ({
                         className="w-full p-3 pl-10 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500"
                       />
                     ) : (
-                      <input
-                        type="date"
-                        value={rescheduleDate}
-                        max={today}
-                        onChange={(e) => setRescheduleDate(e.target.value)}
-                        className="w-full p-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 font-medium"
-                      />
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <div className="relative">
+                          <input
+                            type="text"
+                            placeholder="Поиск: телефон..."
+                            value={searchReScheduleQuery}
+                            onChange={(e) =>
+                              setSearchReScheduleQuery(e.target.value)
+                            }
+                            className="w-full p-3 pl-10 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 font-medium"
+                          />
+                          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                        </div>
+
+                        <input
+                          type="date"
+                          value={rescheduleDate}
+                          max={today}
+                          onChange={(e) => setRescheduleDate(e.target.value)}
+                          className="w-full p-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 font-medium"
+                        />
+                      </div>
                     )}
                     {activeTab === "new" && (
                       <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -1943,7 +1959,7 @@ const DistributionView = ({
                 <table className="w-full border-collapse relative">
                   <thead>
                     <tr>
-                      <th className="sticky top-0 left-0 bg-gray-100 p-3 border-b-2 border-gray-200 font-bold text-gray-900 text-left min-w-[80px] z-30 text-sm">
+                      <th className="sticky top-0 left-0 bg-gray-100 p-3 border-b-2 border-gray-200 font-bold text-gray-900 text-left min-w-[100px] z-30 text-sm">
                         Время
                       </th>
                       {teacherSchedule.teachers.map((teacher) => (
@@ -2029,7 +2045,7 @@ const DistributionView = ({
                                       : ""
                                   }`}
                                 >
-                                  <p className="font-bold truncate text-xs">
+                                  <p className="font-bold truncate text-xs max-w-[100px] min-w-[100px]">
                                     {assignedEntry.clientName}
                                   </p>
                                 </div>
@@ -2038,7 +2054,7 @@ const DistributionView = ({
                                   <Lock className="w-5 h-5" />
                                 </div>
                               ) : !readOnly ? (
-                                <div className="h-full flex items-center justify-center text-green-400 font-semibold">
+                                <div className="h-full flex items-center justify-center text-green-400 font-semibold  max-w-[116px] min-w-[116px]">
                                   <Plus className="w-5 h-5" />
                                 </div>
                               ) : null}
@@ -2994,7 +3010,7 @@ const TeacherScheduleView = ({
   if (!currentUser) return <Spinner />;
 
   return (
-    <div className="max-w-5xl mx-auto">
+    <div className="min-w-[1000px] mx-auto">
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm">
         <div className="p-8 border-b border-gray-100 bg-gradient-to-r from-green-50 to-emerald-50">
           <div className="flex flex-wrap justify-between items-center gap-4">
@@ -3191,7 +3207,7 @@ const TeacherAnalyticsView = ({ entries, currentUser }) => {
   );
 
   return (
-    <div className="space-y-8">
+    <div className="min-w-[1000px] space-y-8">
       <div className="flex justify-start gap-2 bg-gray-100 p-2 rounded-2xl">
         <button
           onClick={() => setTimeFilter("day")}
@@ -3224,7 +3240,7 @@ const TeacherAnalyticsView = ({ entries, currentUser }) => {
           Месяц
         </button>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
         <StatCard
           title="Проведено уроков"
           value={stats.conducted}
@@ -4691,7 +4707,7 @@ export default function App() {
   const renderHeader = () => {
     if (!currentUser) return null;
     return (
-      <header className="mb-8 p-4 md:p-8 bg-white rounded-2xl border border-gray-100 shadow-sm">
+      <header className="mb-8 p-4 md:p-8  bg-white rounded-2xl border border-gray-100 shadow-sm">
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
           <div>
             <h2 className="text-2xl md:text-3xl font-black text-gray-900">
@@ -4973,7 +4989,7 @@ export default function App() {
 
         return (
           <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white flex justify-center">
-            <div className="mx-auto">
+            <div className="w-full p-[2rem]">
               {renderHeader()}
               {dashboardContent}
             </div>
