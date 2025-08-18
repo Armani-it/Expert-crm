@@ -3907,13 +3907,13 @@ const AnalyticsView = ({ entries, ropList }) => {
             icon={<BookCopy size={24} />}
             colorClass="bg-gray-500 border-gray-600"
           />
-          <FunnelStatCard
+          {/* <FunnelStatCard
             title="Проведено"
             count={funnelStats.conducted}
             total={funnelStats.total}
             icon={<UserCheck size={24} />}
             colorClass="bg-blue-500 border-blue-600"
-          />
+          /> */}
           <FunnelStatCard
             title="Оплаты"
             count={funnelStats.paid}
