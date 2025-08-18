@@ -2836,8 +2836,16 @@ const ConversionView = ({ entries, teacherSchedule }) => {
             ? ((data.payments / data.conducted) * 100).toFixed(1)
             : 0,
       }))
-      .sort((a, b) => b.conversion - a.conversion);
+      // .sort((a, b) => b.conversion - a.conversion);
+      .sort((a, b) => {
+  if (b.conducted !== a.conducted) {
+    return b.conducted - a.conducted; // сначала по проведённым
+  }
+  return b.conversion - a.conversion; // если одинаково — по конверсии
+});
+
   }, [filteredEntries, teacherSchedule?.teachers]);
+
   const getConversionColor = (conversion) => {
     if (conversion >= 70)
       return "text-green-600 bg-gradient-to-r from-green-100 to-green-200";
