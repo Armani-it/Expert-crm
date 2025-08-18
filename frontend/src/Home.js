@@ -886,7 +886,6 @@ const DetailsModal = ({
                   {[
                     "Ожидает",
                     "Назначен",
-                    "Проведен",
                     "Перенос",
                     "Оплата",
                     "Клиент отказ",
@@ -2821,7 +2820,7 @@ const ConversionView = ({ entries, teacherSchedule }) => {
     });
     filteredEntries.forEach((entry) => {
       if (entry.assignedTeacher && stats[entry.assignedTeacher]) {
-        if (["Проведен", "Оплата"].includes(entry.status)) {
+        if (["Проведен", "Оплата", "Клиент отказ", "Каспий отказ"].includes(entry.status)) {
           stats[entry.assignedTeacher].conducted += 1;
         }
         if (entry.status === "Оплата") {
