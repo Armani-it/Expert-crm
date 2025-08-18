@@ -2839,9 +2839,9 @@ const ConversionView = ({ entries, teacherSchedule }) => {
       // .sort((a, b) => b.conversion - a.conversion);
       .sort((a, b) => {
   if (b.conducted !== a.conducted) {
-    return b.conducted - a.conducted; // сначала по проведённым
+    return b.conducted - a.conducted;
   }
-  return b.conversion - a.conversion; // если одинаково — по конверсии
+  return b.conversion - a.conversion;
 });
 
   }, [filteredEntries, teacherSchedule?.teachers]);
