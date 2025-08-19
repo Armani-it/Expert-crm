@@ -2786,7 +2786,7 @@ export default function App() {
 
 
 
-       const lessonIdentifier = `Сәлеметсізбе! Сізге ${originalEntry.name} есімді клиент пробный сабаққа жазылды. \n\n👤Номері: ${originalEntry.phone}\n💬Карточкасы: ${originalEntry.comment}`;
+       const lessonIdentifier = `Сәлеметсізбе! Сізге ${originalEntry.clientName} есімді клиент пробный сабаққа жазылды. \n\n👤Номері: ${originalEntry.phone}\n💬Карточкасы: ${originalEntry.comment}`;
       const payload = {
         message: lessonIdentifier,
         number: teacher_number,
