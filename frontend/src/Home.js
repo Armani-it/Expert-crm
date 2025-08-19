@@ -56,8 +56,8 @@ import DistributionView from "./pieces/DistributionView";
 const API_URL = "https://backend-expert-crm.onrender.com";
 const GOOGLE_SCRIPT_URL =
   "https://script.google.com/macros/s/AKfycbxXA8JQ0sQ1gxFQYGhgo995CFq3CrbgSPMnkHez0Up7PzWhsoFAbQMj3CoI15dJmEU_Uw/exec";
-const WEBHOOK_URL = "https://api.akcent.online/webhook";
-const RESCHEDULE_WEBHOOK_URL = "https://api.akcent.online/reschedule-webhook";
+const WEBHOOK_URL = "https://us-central1-akcent-academy.cloudfunctions.net/sendMessageWhatsApp";
+const RESCHEDULE_WEBHOOK_URL = "https://us-central1-akcent-academy.cloudfunctions.net/sendMessageWhatsApp";
 
 // =================================================================
 //                          DEMO DATA & CONSTANTS
@@ -158,6 +158,7 @@ const initialUsers = [
     password: "password123",
     role: "teacher",
     name: "Сәбина",
+    number: "87072531783",
   },
   {
     id: "16",
@@ -252,6 +253,30 @@ const ALL_SOURCES = [
   "База-лид",
   "Деңгей анықтау",
 ];
+
+
+function getTeacherNumberByName(name, { normalize = false } = {}) {
+  if (!name) return null;
+  const needle = String(name).trim().toLowerCase();
+
+  const teacher = initialUsers.find(
+    (u) => u.role === "teacher" && String(u.name || "").trim().toLowerCase() === needle
+  );
+  if (!teacher) return null;
+
+  const raw = teacher.number ? String(teacher.number).trim() : "";
+  if (!raw) return null;
+
+  return normalize ? normalizeKzNumber(raw) : raw;
+}
+
+function normalizeKzNumber(number) {
+  let n = String(number).replace(/[^\d+]/g, "");
+  if (n.startsWith("+")) n = n.slice(1);
+  if (n.length === 11 && n.startsWith("8")) n = "7" + n.slice(1);
+  if (!n.startsWith("7")) n = "7" + n.replace(/^7+/, "");
+  return `+${n}`;
+}
 
 const generateTimeSlots = () => {
   const slots = [];
@@ -2755,19 +2780,24 @@ export default function App() {
 
     const cleanedPhone = cleanPhoneNumberForApi(originalEntry.phone);
 
-    // Случай 1: Отмена или перенос назначенного урока
+    
+    const teacher_number = 
+         getTeacherNumberByName(originalEntry.assignedTeacher);
+
+
+
+       const lessonIdentifier = `Сәлеметсізбе! Сізге ${originalEntry.name} есімді клиент пробный сабаққа жазылды. \n\n👤Номері: ${originalEntry.phone}\n💬Карточкасы: ${originalEntry.comment}`;
+      const payload = {
+        message: lessonIdentifier,
+        number: teacher_number,
+      };
     if (
       wasAssigned &&
       (!isNowAssigned ||
         ["Перенос", "Клиент отказ", "Каспий отказ"].includes(
           updatedEntry.status
-        ))
+        )) && teacher_number !== null
     ) {
-      const lessonIdentifier = `${originalEntry.assignedTeacher}-${cleanedPhone}-${originalEntry.assignedTime}`;
-      const payload = {
-        lessonIdentifier,
-        action: "cancel",
-      };
       try {
         await fetch(RESCHEDULE_WEBHOOK_URL, {
           method: "POST",
@@ -2782,12 +2812,7 @@ export default function App() {
     }
 
     // Случай 2: Назначение нового урока (ранее не был назначен)
-    if (!wasAssigned && isNowAssigned) {
-      const payload = {
-        teacherName: updatedEntry.assignedTeacher,
-        phone: cleanedPhone,
-        lessonTime: updatedEntry.assignedTime,
-      };
+    if (!wasAssigned && isNowAssigned && teacher_number !== null) {
       try {
         await fetch(WEBHOOK_URL, {
           method: "POST",
@@ -2804,16 +2829,10 @@ export default function App() {
     // Случай 3: Перенос назначенного урока на другое время/дату
     if (
       wasAssigned &&
-      isNowAssigned &&
+      isNowAssigned && 
       (originalEntry.assignedTime !== updatedEntry.assignedTime ||
-        originalEntry.trialDate !== updatedEntry.trialDate)
+        originalEntry.trialDate !== updatedEntry.trialDate) && teacher_number !== null
     ) {
-      const lessonIdentifier = `${originalEntry.assignedTeacher}-${cleanedPhone}-${originalEntry.assignedTime}`;
-      const payload = {
-        lessonIdentifier,
-        action: "reschedule",
-        newLessonTime: updatedEntry.assignedTime,
-      };
       try {
         await fetch(RESCHEDULE_WEBHOOK_URL, {
           method: "POST",
