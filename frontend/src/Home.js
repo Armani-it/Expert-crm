@@ -158,7 +158,7 @@ const initialUsers = [
     password: "password123",
     role: "teacher",
     name: "Сәбина",
-    // number: "87072531783",
+    number: "87072531783",
   },
   {
     id: "16",
@@ -2786,7 +2786,7 @@ export default function App() {
 
 
 
-       const lessonIdentifier = `Сәлеметсізбе! Сізге ${originalEntry.clientName} есімді клиент пробный сабаққа жазылды. \n\n👤Номері: ${originalEntry.phone}\n💬Карточкасы: ${originalEntry.comment}`;
+       const lessonIdentifier = `Сәлеметсізбе! Сізге ${originalEntry.clientName} есімді клиент пробный сабаққа жазылды. \n\n👤Номері: ${originalEntry.phone}\n⏱️Уақыты: ${updatedEntry.assignedTime}\n\n💬Карточкасы: ${originalEntry.comment}`;
       const payload = {
         message: lessonIdentifier,
         number: teacher_number,
