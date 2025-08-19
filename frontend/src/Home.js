@@ -158,7 +158,7 @@ const initialUsers = [
     password: "password123",
     role: "teacher",
     name: "Сәбина",
-    number: "87072531783",
+    // number: "87072531783",
   },
   {
     id: "16",
