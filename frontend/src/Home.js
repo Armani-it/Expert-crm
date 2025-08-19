@@ -792,7 +792,7 @@ const LeaderboardView = ({
   );
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8">
+    <div className="w-full mx-auto space-y-8">
       <div
         className={`flex items-center ${
           currentUser?.role === "public" ? "justify-center" : "justify-end"
@@ -2190,7 +2190,7 @@ const AnalyticsView = ({ entries, ropList }) => {
         <h3 className="font-bold text-2xl text-gray-900 mb-4">
           Воронка за период
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <FunnelStatCard
             title="Всего заявок"
             count={funnelStats.total}

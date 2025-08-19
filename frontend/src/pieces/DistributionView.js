@@ -257,7 +257,7 @@ const DistributionView = ({
           </div>
         </div>
       </div>
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
         {!readOnly && (
           <div className="lg:col-span-1">
             <div className="lg:sticky lg:top-24 space-y-6 max-h-[calc(100vh-7rem)] overflow-y-auto p-1 rounded-2xl">
@@ -274,7 +274,7 @@ const DistributionView = ({
               : "text-gray-600 hover:text-gray-900"
           }`}
                     >
-                      Новые&nbsp;заявки
+                      Новые
                       <span
                         className="ml-2 inline-flex items-center justify-center text-xs font-bold
           px-2 py-0.5 rounded-full bg-blue-100 text-blue-700"
@@ -291,7 +291,7 @@ const DistributionView = ({
               : "text-gray-600 hover:text-gray-900"
           }`}
                     >
-                      Перенесённые
+                      Переносы
                       <span
                         className="ml-2 inline-flex items-center justify-center text-xs font-bold
           px-2 py-0.5 rounded-full bg-red-100 text-red-700"
@@ -322,7 +322,7 @@ const DistributionView = ({
                             onChange={(e) =>
                               setSearchReScheduleQuery(e.target.value)
                             }
-                            className="w-full p-3 pl-10 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 font-medium"
+                            className="w-full p-1 pl-10 border-2 border-gray-200 rounded-md focus:ring-2 focus:ring-blue-500 font-light"
                           />
                           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                         </div>
@@ -332,7 +332,7 @@ const DistributionView = ({
                           value={rescheduleDate}
                           max={today}
                           onChange={(e) => setRescheduleDate(e.target.value)}
-                          className="w-full p-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 font-medium"
+                          className="w-full p-1 border-2 border-gray-200 rounded-md focus:ring-2 focus:ring-blue-500 font-light"
                         />
                       </div>
                     )}
@@ -486,7 +486,7 @@ const DistributionView = ({
             </div>
           </div>
         )}
-        <div className={readOnly ? "lg:col-span-4" : "lg:col-span-3"}>
+        <div className={readOnly ? "lg:col-span-5" : "lg:col-span-4"}>
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm">
             <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50">
               <h3 className="font-bold text-lg text-gray-900 flex items-center gap-3">
@@ -511,7 +511,7 @@ const DistributionView = ({
                 <table className="w-full border-collapse relative">
                   <thead>
                     <tr>
-                      <th className="sticky top-0 left-0 bg-gray-100 p-3 border-b-2 border-gray-200 font-bold text-gray-900 text-left min-w-[100px] z-30 text-sm">
+                      <th className="sticky top-0 left-0 bg-gray-100 p-3 border-b-2 border-gray-200 font-bold text-gray-900 text-left min-w-[80px] z-30 text-sm">
                         Время
                       </th>
                       {teacherSchedule.teachers.map((teacher) => (
@@ -544,7 +544,7 @@ const DistributionView = ({
                           const isPrimedForBlock = cellToBlock === cellKey;
 
                           let cellClasses =
-                            "p-2 border-b border-gray-100 h-16 transition-all";
+                            "p-1 border-b border-gray-100 h-12 transition-all";
                           if (!readOnly && !assignedEntry) {
                             cellClasses += " cursor-pointer";
                           }
@@ -597,7 +597,7 @@ const DistributionView = ({
                                       : ""
                                   }`}
                                 >
-                                  <p className="font-bold truncate text-xs max-w-[100px] min-w-[100px]">
+                                  <p className="font-bold truncate text-xs max-w-[80px] min-w-[80px]">
                                     {assignedEntry.clientName}
                                   </p>
                                 </div>
@@ -606,7 +606,7 @@ const DistributionView = ({
                                   <Lock className="w-5 h-5" />
                                 </div>
                               ) : !readOnly ? (
-                                <div className="h-full flex items-center justify-center text-green-400 font-semibold  max-w-[116px] min-w-[116px]">
+                                <div className="h-full flex items-center justify-center text-green-400 font-semibold  max-w-[96px] min-w-[96px]">
                                   <Plus className="w-5 h-5" />
                                 </div>
                               ) : null}
