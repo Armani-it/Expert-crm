@@ -2807,8 +2807,10 @@ export default function App() {
       updatedEntry.assignedTeacher && updatedEntry.assignedTime;
 
     const teacher_number = getTeacherNumberByName(
-      originalEntry.assignedTeacher
+      updatedEntry.assignedTeacher
     );
+    console.log(updatedEntry.assignedTeacher);
+    console.log(updatedEntry.teacher);
 
     const lessonIdentifier = `Сәлеметсізбе! Сізге ${originalEntry.clientName} есімді клиент пробный сабаққа жазылды. \n\n👤Номері: ${originalEntry.phone}\n⏱️Уақыты: ${updatedEntry.assignedTime}\n\n💬Карточкасы: ${originalEntry.comment}`;
     const payload = {
