@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import {
   X,
@@ -41,13 +40,12 @@ import {
   LabelList,
 } from "recharts";
 
-
-import DetailsModal from "./pieces/DetailsModal"
-import LoginModal from "./pieces/LoginModal"
-import PlanModal from "./pieces/PlanModal"
-import Modal from "./pieces/Modal"
+import DetailsModal from "./pieces/DetailsModal";
+import LoginModal from "./pieces/LoginModal";
+import PlanModal from "./pieces/PlanModal";
+import Modal from "./pieces/Modal";
 import FormPage from "./pieces/FormPage";
-import TeacherNotificationSender  from "./pieces/TeacherNotificationSender"
+import TeacherNotificationSender from "./pieces/TeacherNotificationSender";
 import DistributionView from "./pieces/DistributionView";
 
 // =================================================================
@@ -56,8 +54,10 @@ import DistributionView from "./pieces/DistributionView";
 const API_URL = "https://backend-expert-crm.onrender.com";
 const GOOGLE_SCRIPT_URL =
   "https://script.google.com/macros/s/AKfycbxXA8JQ0sQ1gxFQYGhgo995CFq3CrbgSPMnkHez0Up7PzWhsoFAbQMj3CoI15dJmEU_Uw/exec";
-const WEBHOOK_URL = "https://us-central1-akcent-academy.cloudfunctions.net/sendMessageWhatsApp";
-const RESCHEDULE_WEBHOOK_URL = "https://us-central1-akcent-academy.cloudfunctions.net/sendMessageWhatsApp";
+const WEBHOOK_URL =
+  "https://us-central1-akcent-academy.cloudfunctions.net/sendMessageWhatsApp";
+const RESCHEDULE_WEBHOOK_URL =
+  "https://us-central1-akcent-academy.cloudfunctions.net/sendMessageWhatsApp";
 
 // =================================================================
 //                          DEMO DATA & CONSTANTS
@@ -152,17 +152,17 @@ const initialUsers = [
 
   // Обновленный список учителей
 
-//   Сабина - 
-// Ғазиза - 
-// Дана -  
-// Қымбат - 
-// Нұрсұлу - 
-// Назерке - 
-// Нұрқабыл - 
-// Динара - 
-// Дильназ - 
-// Айжан - 
-// Жанаргүль - 
+  //   Сабина -
+  // Ғазиза -
+  // Дана -
+  // Қымбат -
+  // Нұрсұлу -
+  // Назерке -
+  // Нұрқабыл -
+  // Динара -
+  // Дильназ -
+  // Айжан -
+  // Жанаргүль -
 
   {
     id: "33",
@@ -277,13 +277,16 @@ const ALL_SOURCES = [
   "Деңгей анықтау",
 ];
 
-
 function getTeacherNumberByName(name, { normalize = false } = {}) {
   if (!name) return null;
   const needle = String(name).trim().toLowerCase();
 
   const teacher = initialUsers.find(
-    (u) => u.role === "teacher" && String(u.name || "").trim().toLowerCase() === needle
+    (u) =>
+      u.role === "teacher" &&
+      String(u.name || "")
+        .trim()
+        .toLowerCase() === needle
   );
   if (!teacher) return null;
 
@@ -411,8 +414,6 @@ const Toast = ({ message, type, isVisible }) => {
     </div>
   );
 };
-
-
 
 const TrialsListView = ({
   entries,
@@ -1162,7 +1163,11 @@ const ConversionView = ({ entries, teacherSchedule }) => {
     });
     filteredEntries.forEach((entry) => {
       if (entry.assignedTeacher && stats[entry.assignedTeacher]) {
-        if (["Проведен", "Оплата", "Клиент отказ", "Каспий отказ"].includes(entry.status)) {
+        if (
+          ["Проведен", "Оплата", "Клиент отказ", "Каспий отказ"].includes(
+            entry.status
+          )
+        ) {
           stats[entry.assignedTeacher].conducted += 1;
         }
         if (entry.status === "Оплата") {
@@ -1170,22 +1175,23 @@ const ConversionView = ({ entries, teacherSchedule }) => {
         }
       }
     });
-    return Object.values(stats)
-      .map((data) => ({
-        ...data,
-        conversion:
-          data.conducted > 0
-            ? ((data.payments / data.conducted) * 100).toFixed(1)
-            : 0,
-      }))
-      // .sort((a, b) => b.conversion - a.conversion);
-      .sort((a, b) => {
-  if (b.conducted !== a.conducted) {
-    return b.conducted - a.conducted;
-  }
-  return b.conversion - a.conversion;
-});
-
+    return (
+      Object.values(stats)
+        .map((data) => ({
+          ...data,
+          conversion:
+            data.conducted > 0
+              ? ((data.payments / data.conducted) * 100).toFixed(1)
+              : 0,
+        }))
+        // .sort((a, b) => b.conversion - a.conversion);
+        .sort((a, b) => {
+          if (b.conducted !== a.conducted) {
+            return b.conducted - a.conducted;
+          }
+          return b.conversion - a.conversion;
+        })
+    );
   }, [filteredEntries, teacherSchedule?.teachers]);
 
   const getConversionColor = (conversion) => {
@@ -1657,7 +1663,6 @@ const TeacherDashboard = (props) => {
     </div>
   );
 };
-
 
 const StatCard = ({ title, value, icon, gradient }) => (
   <div className={`rounded-3xl p-6 text-white shadow-2xl ${gradient}`}>
@@ -2801,72 +2806,49 @@ export default function App() {
     const isNowAssigned =
       updatedEntry.assignedTeacher && updatedEntry.assignedTime;
 
-    const cleanedPhone = cleanPhoneNumberForApi(originalEntry.phone);
+    const teacher_number = getTeacherNumberByName(
+      originalEntry.assignedTeacher
+    );
 
-    
-    const teacher_number = 
-         getTeacherNumberByName(originalEntry.assignedTeacher);
+    const lessonIdentifier = `Сәлеметсізбе! Сізге ${originalEntry.clientName} есімді клиент пробный сабаққа жазылды. \n\n👤Номері: ${originalEntry.phone}\n⏱️Уақыты: ${updatedEntry.assignedTime}\n\n💬Карточкасы: ${originalEntry.comment}`;
+    const payload = {
+      message: lessonIdentifier,
+      number: teacher_number,
+    };
 
-
-
-       const lessonIdentifier = `Сәлеметсізбе! Сізге ${originalEntry.clientName} есімді клиент пробный сабаққа жазылды. \n\n👤Номері: ${originalEntry.phone}\n⏱️Уақыты: ${updatedEntry.assignedTime}\n\n💬Карточкасы: ${originalEntry.comment}`;
-      const payload = {
-        message: lessonIdentifier,
-        number: teacher_number,
-      };
+    try {
+      await fetch(RESCHEDULE_WEBHOOK_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      showToastMessage("Уведомление об отмене урока отправлено", "info");
+    } catch (e) {
+      console.error("Ошибка при отправке вебхука отмены:", e);
+      showToastMessage("Ошибка отправки вебхука отмены", "error");
+    }
     if (
       wasAssigned &&
       (!isNowAssigned ||
         ["Перенос", "Клиент отказ", "Каспий отказ"].includes(
           updatedEntry.status
-        )) && teacher_number !== null
+        )) &&
+      teacher_number !== null
     ) {
-      try {
-        await fetch(RESCHEDULE_WEBHOOK_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
-        showToastMessage("Уведомление об отмене урока отправлено", "info");
-      } catch (e) {
-        console.error("Ошибка при отправке вебхука отмены:", e);
-        showToastMessage("Ошибка отправки вебхука отмены", "error");
-      }
     }
 
     // Случай 2: Назначение нового урока (ранее не был назначен)
     if (!wasAssigned && isNowAssigned && teacher_number !== null) {
-      try {
-        await fetch(WEBHOOK_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
-        showToastMessage("Уведомление о новом уроке отправлено", "info");
-      } catch (e) {
-        console.error("Ошибка при отправке вебхука назначения:", e);
-        showToastMessage("Ошибка отправки вебхука назначения", "error");
-      }
     }
 
     // Случай 3: Перенос назначенного урока на другое время/дату
     if (
       wasAssigned &&
-      isNowAssigned && 
+      isNowAssigned &&
       (originalEntry.assignedTime !== updatedEntry.assignedTime ||
-        originalEntry.trialDate !== updatedEntry.trialDate) && teacher_number !== null
+        originalEntry.trialDate !== updatedEntry.trialDate) &&
+      teacher_number !== null
     ) {
-      try {
-        await fetch(RESCHEDULE_WEBHOOK_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
-        showToastMessage("Уведомление о переносе урока отправлено", "info");
-      } catch (e) {
-        console.error("Ошибка при отправке вебхука переноса:", e);
-        showToastMessage("Ошибка отправки вебхука переноса", "error");
-      }
     }
   };
 
