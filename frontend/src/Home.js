@@ -259,6 +259,16 @@ const initialUsers = [
     name: "Жанаргуль",
     number: "87077021930",
   },
+  
+  {
+    id: "36",
+    username: "erkemai",
+    password: "password123",
+    role: "teacher",
+    name: "Еркемай",
+    number: "",
+  },
+
   {
     id: "32",
     username: "primoy",
