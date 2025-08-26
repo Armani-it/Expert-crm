@@ -150,6 +150,13 @@ const initialUsers = [
     name: "Динара",
   },
 
+  {
+    id: "41",
+    username: "1English",
+    password: "password123",
+    role: "rop",
+    name: "1English",
+  },
   // Обновленный список учителей
 
   //   Сабина -
@@ -206,10 +213,10 @@ const initialUsers = [
   },
   {
     id: "34",
-    username: "nazerke",
+    username: "nazerke_kaldaeva",
     password: "password123",
     role: "teacher",
-    name: "Назерке",
+    name: "Назерке Қалдаева",
     number: "87073609961",
   },
   {
