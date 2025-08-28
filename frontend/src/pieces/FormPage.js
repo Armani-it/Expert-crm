@@ -194,7 +194,7 @@ const FormPage = ({
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white flex justify-center">
-      <div className="w-[60%] mx-auto pt-12 pb-20 px-6">
+      <div className="w-full md:w-[60%] mx-auto pt-12 pb-20 px-6">
         <SuccessModal
           isVisible={showSuccess}
           onClose={() => setShowSuccess(false)}
