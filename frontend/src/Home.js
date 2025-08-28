@@ -51,7 +51,7 @@ import DistributionView from "./pieces/DistributionView";
 // =================================================================
 //                          CONFIGURATION
 // =================================================================
-const API_URL = "https://backend-expert-crm.onrender.com";
+const API_URL = "https://us-central1-akcent-academy.cloudfunctions.net/expert";
 const GOOGLE_SCRIPT_URL =
   "https://script.google.com/macros/s/AKfycbxXA8JQ0sQ1gxFQYGhgo995CFq3CrbgSPMnkHez0Up7PzWhsoFAbQMj3CoI15dJmEU_Uw/exec";
 const WEBHOOK_URL =
