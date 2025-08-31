@@ -65,6 +65,7 @@ const DistributionView = ({
 
   const handleDrop = async (e, teacher, time) => {
     e.preventDefault();
+    e.stopPropagation();
     setDragOverCell(null);
     if (!draggedItem || readOnly || isMobile) return;
     const cellKey = `${selectedDate}_${teacher}_${time}`;
@@ -81,6 +82,7 @@ const DistributionView = ({
       trialDate: selectedDate || draggedItem.trialDate,
     });
     setDraggedItem(null);
+    setSelectedEntryForMobile(null);
   };
 
   const handleDragOver = (e) => {
@@ -109,6 +111,14 @@ const DistributionView = ({
     } else {
       onOpenDetails(entry, readOnly);
     }
+  };
+
+  const handleDragEnd = (e) => {
+    console.log("handleDragEnd");
+    if (readOnly || isMobile) return;
+    setDragOverCell(null);
+    setDraggedItem(null);
+    setSelectedEntryForMobile(null);
   };
 
   const handleCellClick = (teacher, time) => {
@@ -363,6 +373,7 @@ const DistributionView = ({
                             key={entry.id}
                             draggable={!readOnly && !isMobile}
                             onDragStart={(e) => handleDragStart(e, entry)}
+                            onDragEnd={handleDragEnd}
                             onClick={() => handleEntryClick(entry)}
                             className={`p-4 bg-gradient-to-br from-blue-50 to-indigo-50 border-2 rounded-xl transition-all
                 ${!readOnly ? "cursor-pointer" : ""} 
@@ -432,6 +443,7 @@ const DistributionView = ({
                             key={entry.id}
                             draggable={!readOnly && !isMobile}
                             onDragStart={(e) => handleDragStart(e, entry)}
+                            onDragEnd={handleDragEnd}
                             onClick={() => handleEntryClick(entry)}
                             className={`p-4 bg-gradient-to-br from-red-50 to-orange-50 border-2 rounded-xl transition-all
                 ${!readOnly ? "cursor-pointer" : ""} 

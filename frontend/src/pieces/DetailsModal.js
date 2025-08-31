@@ -53,12 +53,25 @@ const DetailsModal = ({
     }
   }, [entry]);
 
+  useEffect(() => {
+    if(currentStatus === "Корзина"){
+      setTrialDate("");
+    }else{
+      if(entry != null){
+      setTrialDate(entry?.trialDate || "");
+      }
+    }
+  }, [currentStatus]);
+
   if (!entry) return null;
 
   const handleSave = async () => {
     if (currentStatus === "Перенос" && !trialDate) {
       showToast("Пожалуйста, выберите новую дату для переноса.", "error");
       return;
+    }
+    if(currentStatus === "Корзина"){
+      setTrialDate("");
     }
 
     setIsSaving(true);
@@ -231,6 +244,7 @@ const DetailsModal = ({
                     "Оплата",
                     "Клиент отказ",
                     "Каспий отказ",
+                    "Корзина"
                   ].map((s) => (
                     <option key={s} value={s}>
                       {s}

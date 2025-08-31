@@ -190,7 +190,7 @@ const FormPage = ({
     if ([...params.keys()].length > 0) {
       window.history.replaceState({}, "", window.location.pathname);
     }
-  }, [location.search, trialDate]);
+  }, [location.search]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white flex justify-center">
