@@ -157,6 +157,14 @@ const initialUsers = [
     role: "rop",
     name: "1English",
   },
+
+  {
+    id: "42",
+    username: "aikumis",
+    password: "password123",
+    role: "rop",
+    name: "Айкүміс",
+  },
   // Обновленный список учителей
 
   //   Сабина -
