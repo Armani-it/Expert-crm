@@ -9,6 +9,7 @@ import {
   History,
   Lock,
   Search,
+  ArrowBigUpDash,
 } from "lucide-react";
 
 const getAppointmentColorForStatus = (status) => {
@@ -57,19 +58,30 @@ const DistributionView = ({
   }, []);
 
   const handleDragStart = (e, entry) => {
-    if (readOnly || isMobile) return;
+    console.log("handleDragStart");
+    if (readOnly || isMobile) {
+      return;
+    };
     setDraggedItem(entry);
     e.dataTransfer.effectAllowed = "move";
     e.dataTransfer.setData("text/plain", entry.id);
+
   };
 
   const handleDrop = async (e, teacher, time) => {
+    console.log("handleDrop");
     e.preventDefault();
-    e.stopPropagation();
+    e.stopPropagation();  
     setDragOverCell(null);
-    if (!draggedItem || readOnly || isMobile) return;
+
+    if (!draggedItem || readOnly || isMobile) {
+      setDraggedItem(null);
+      return
+    };
     const cellKey = `${selectedDate}_${teacher}_${time}`;
+
     if (blockedSlots.some((slot) => slot.id === cellKey)) {
+      setDraggedItem(null);
       showToast("Этот слот заблокирован", "error");
       return;
     }
@@ -86,18 +98,22 @@ const DistributionView = ({
   };
 
   const handleDragOver = (e) => {
+    console.log("handleDragOver");
     if (!readOnly && !isMobile) e.preventDefault();
   };
 
   const handleDragEnter = (e, teacher, time) => {
+    console.log("handleDragEnter");
     if (!readOnly && !isMobile) setDragOverCell(`${teacher}-${time}`);
   };
 
   const handleDragLeave = (e) => {
+    console.log("handleDragLeave");
     if (!readOnly && !isMobile) setDragOverCell(null);
   };
 
   const handleEntryClick = (entry) => {
+    console.log("handleEntryClick");
     if (readOnly) {
       onOpenDetails(entry, true);
       return;
@@ -121,7 +137,26 @@ const DistributionView = ({
     setSelectedEntryForMobile(null);
   };
 
+
+  const [ropFilter, setRopFilter] = useState("");
+
+  const norm = (v) => (v || "").trim().toLowerCase();
+
+  const ropOptions = useMemo(() => {
+    const m = new Map();
+    entries.forEach((e) => {
+      const v = (e.rop || "").trim();
+      if (v) {
+        const k = v.toLowerCase();
+        if (!m.has(k)) m.set(k, v);
+      }
+    });
+    return Array.from(m.values()).sort((a, b) => a.localeCompare(b, "ru"));
+  }, [entries]);
+
+
   const handleCellClick = (teacher, time) => {
+    console.log("handleCellClick");
     if (readOnly) return;
     const cellKey = `${selectedDate}_${teacher}_${time}`;
     const isCellBlocked = blockedSlots.some((slot) => slot.id === cellKey);
@@ -170,17 +205,26 @@ const DistributionView = ({
   };
 
   const filteredBaseEntries = useMemo(() => {
-    if (!searchQuery) return entries;
-    const lowercasedQuery = searchQuery.toLowerCase();
-    return entries.filter(
-      (entry) =>
-        entry.clientName.toLowerCase().includes(lowercasedQuery) ||
-        (entry.phone &&
-          entry.phone
-            .replace(/\D/g, "")
-            .includes(lowercasedQuery.replace(/\D/g, "")))
-    );
-  }, [entries, searchQuery]);
+  // сначала по имени/телефону
+  const base = !searchQuery
+    ? entries
+    : entries.filter((entry) => {
+        const q = searchQuery.toLowerCase();
+        const nameOk = (entry.clientName || "").toLowerCase().includes(q);
+        const phoneOk = (entry.phone || "")
+          .replace(/\D/g, "")
+          .includes(q.replace(/\D/g, ""));
+        return nameOk || phoneOk;
+      });
+
+  // затем по РОП (если выбран)
+  const byRop = !ropFilter
+    ? base
+    : base.filter((e) => norm(e.rop) === norm(ropFilter));
+
+  return byRop;
+}, [entries, searchQuery, ropFilter]);
+
 
   const unassignedEntries = useMemo(() => {
     return filteredBaseEntries.filter((e) => {
@@ -225,8 +269,6 @@ const DistributionView = ({
     }
   }, [activeTab, selectedDate]);
 
-  // удаляй весь блок filteredRescheduledEntriesS useMemo — он больше не нужен
-
   useEffect(() => {
     const q = (searchReScheduleQuery || "").toLowerCase().replace(/\D/g, "");
 
@@ -252,12 +294,26 @@ const DistributionView = ({
     setFilteredRescheduledEntries(byQuery);
   }, [rescheduleDate, searchReScheduleQuery, rescheduledEntries]);
 
+
   return (
     <div className="space-y-6">
       <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <h3 className="font-bold text-lg text-gray-900">Фильтр по дате</h3>
           <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+    <label className="text-sm text-gray-600">РОП:</label>
+    <select
+      value={ropFilter}
+      onChange={(e) => setRopFilter(e.target.value)}
+      className="p-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all font-medium bg-white"
+    >
+      <option value="">Все</option>
+      {ropOptions.map((opt) => (
+        <option key={opt} value={opt}>{opt}</option>
+      ))}
+    </select>
+  </div>
             <input
               type="date"
               value={selectedDate}
@@ -373,7 +429,7 @@ const DistributionView = ({
                             key={entry.id}
                             draggable={!readOnly && !isMobile}
                             onDragStart={(e) => handleDragStart(e, entry)}
-                            onDragEnd={handleDragEnd}
+  onDragEnd={handleDragEnd}
                             onClick={() => handleEntryClick(entry)}
                             className={`p-4 bg-gradient-to-br from-blue-50 to-indigo-50 border-2 rounded-xl transition-all
                 ${!readOnly ? "cursor-pointer" : ""} 
@@ -405,10 +461,18 @@ const DistributionView = ({
                               <Clock className="w-3 h-3" />
                               {entry.trialDate} {entry.trialTime}
                             </p>
-                            <p className="text-xs text-blue-700 bg-blue-200 px-2 py-1 rounded-full inline-flex items-center gap-1 font-semibold">
-                              <Users className="w-3 h-3" />
-                              {entry.rop}
-                            </p>
+                            <div className="flex items-center justify-between">
+                              <p className="text-xs text-blue-700 bg-blue-200 px-2 py-1 rounded-full inline-flex items-center gap-1 font-semibold">
+                                <Users className="w-3 h-3" />
+                                {entry.rop}
+                              </p>
+                              {entry.score && (
+                                <p className="flex items-center font-base text-gray-900 text-sm">
+                                <ArrowBigUpDash className="w-4 h-4" />
+                                  {entry.score}
+                                </p>
+                              )}
+                            </div>
                           </div>
                         ))
                       ) : (
@@ -443,7 +507,7 @@ const DistributionView = ({
                             key={entry.id}
                             draggable={!readOnly && !isMobile}
                             onDragStart={(e) => handleDragStart(e, entry)}
-                            onDragEnd={handleDragEnd}
+  onDragEnd={handleDragEnd}
                             onClick={() => handleEntryClick(entry)}
                             className={`p-4 bg-gradient-to-br from-red-50 to-orange-50 border-2 rounded-xl transition-all
                 ${!readOnly ? "cursor-pointer" : ""} 
@@ -475,10 +539,18 @@ const DistributionView = ({
                               <Clock className="w-3 h-3" />
                               {entry.trialDate} {entry.trialTime}
                             </p>
-                            <p className="text-xs text-red-700 bg-red-200 px-2 py-1 rounded-full inline-flex items-center gap-1 font-semibold">
-                              <Users className="w-3 h-3" />
-                              {entry.rop}
-                            </p>
+                            <div className="flex items-center justify-between">
+                              <p className="text-xs text-blue-700 bg-blue-200 px-2 py-1 rounded-full inline-flex items-center gap-1 font-semibold">
+                                <Users className="w-3 h-3" />
+                                {entry.rop}
+                              </p>
+                              {entry.score && (
+                                <p className="flex items-center font-base text-gray-900 text-sm">
+                                <ArrowBigUpDash className="w-4 h-4" />
+                                  {entry.score}
+                                </p>
+                              )}
+                            </div>
                           </div>
                         ))
                       ) : (
@@ -609,7 +681,7 @@ const DistributionView = ({
                                       : ""
                                   }`}
                                 >
-                                  <p className="font-bold truncate text-xs max-w-[80px] min-w-[80px]">
+                                  <p className="font-bold truncate text-xs max-w-[100px] min-w-[100px]">
                                     {assignedEntry.clientName}
                                   </p>
                                 </div>

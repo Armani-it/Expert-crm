@@ -46,6 +46,7 @@ const FormPage = ({
   const [source, setSource] = useState("");
   const [comment, setComment] = useState("");
   const [id, setId] = useState("");
+  const [score, setScore] = useState(null);
 
   const handlePhoneInputChange = (e) => {
     const rawValue = e.target.value;
@@ -125,6 +126,7 @@ const FormPage = ({
     data.rop = rop;
     data.comment = comment;
     data.sourse = source;
+    data.score = score ? score.toString() : "";
 
     if (!data.rop) {
       showToast("Пожалуйста, выберите РОП", "error");
@@ -165,11 +167,13 @@ const FormPage = ({
     const sourceParam = params.get("sourse");
     const commentParam = params.get("comment");
     const id_ = params.get("id");
+    const scoreParam = params.get("score");
 
     if (clientNameParam) setClientName(clientNameParam);
     if (phoneParam) formatPhone(phoneParam);
     if (ropParam) setRop(ropParam);
     if (id_) setId(id_);
+    if (scoreParam) setScore(scoreParam);
 
     if (dateParam && dateParam.length > 2) {
       setTrialDate(dateParam);

@@ -44,7 +44,7 @@ app.post('/api/entries', async (req, res) => {
   try {
     const {
       clientName, phone, trialDate, trialTime, rop, source,
-      comment, status, createdAt
+      comment, status, createdAt, score
     } = req.body;
 
     const ref = db.ref('entries').push();
@@ -64,7 +64,8 @@ app.post('/api/entries', async (req, res) => {
       assignedTime: null,
       paymentType: null,
       packageType: null,
-      paymentAmount: 0
+      paymentAmount: 0,
+      score: score || null
     };
 
     await ref.set(payload);
