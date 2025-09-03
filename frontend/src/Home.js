@@ -772,10 +772,25 @@ const LeaderboardView = ({
     if (end) end.setHours(23, 59, 59, 999);
 
     return entries.filter((entry) => {
-      const entryDate = new Date(entry.createdAt);
+      const entryDate = new Date(getEntryDate(entry));
       return (!start || entryDate >= start) && (!end || entryDate <= end);
     });
   }, [entries, dateRange]);
+
+  function getEntryDate(entry) {
+  if (entry.trialDate && entry.trialTime) {
+    // trialDate: "2025-09-02", trialTime: "16:20"
+    // Собираем ISO с оффсетом Алматы (+06:00)
+    const iso = `${entry.trialDate}T${entry.trialTime}:00+06:00`;
+    const dt = new Date(iso);
+    if (!isNaN(dt.getTime())) {
+      return dt;
+    }
+  }
+
+  // fallback → createdAt (timestamp в ms или ISO)
+  return new Date(entry.createdAt);
+}
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -2008,7 +2023,7 @@ const AnalyticsView = ({ entries, ropList }) => {
     if (end) end.setHours(23, 59, 59, 999);
 
     return entries.filter((entry) => {
-      const entryDate = new Date(entry.createdAt);
+      const entryDate = new Date(getEntryDate(entry));
       const dateMatch =
         (!start || entryDate >= start) && (!end || entryDate <= end);
       const sourceMatch = !filters.source || entry.source === filters.source;
@@ -2016,6 +2031,21 @@ const AnalyticsView = ({ entries, ropList }) => {
       return dateMatch && sourceMatch && ropMatch;
     });
   }, [entries, filters]);
+
+  function getEntryDate(entry) {
+  if (entry.trialDate && entry.trialTime) {
+    // trialDate: "2025-09-02", trialTime: "16:20"
+    // Собираем ISO с оффсетом Алматы (+06:00)
+    const iso = `${entry.trialDate}T${entry.trialTime}:00+06:00`;
+    const dt = new Date(iso);
+    if (!isNaN(dt.getTime())) {
+      return dt;
+    }
+  }
+
+  // fallback → createdAt (timestamp в ms или ISO)
+  return new Date(entry.createdAt);
+}
 
   useEffect(() => {
     console.log("Фильтр:", filters);
@@ -2760,7 +2790,7 @@ export default function App() {
       const interval = setInterval(() => {
         fetchEntries();
         fetchBlockedSlots();
-      }, 15000); // every 15 seconds
+      }, 60000); // every 15 seconds
 
       return () => clearInterval(interval); // Cleanup on unmount
     }
