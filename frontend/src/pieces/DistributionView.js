@@ -9,7 +9,7 @@ import {
   History,
   Lock,
   Search,
-  ArrowBigUpDash,
+  Star,
 } from "lucide-react";
 
 const getAppointmentColorForStatus = (status) => {
@@ -467,8 +467,8 @@ const DistributionView = ({
                                 {entry.rop}
                               </p>
                               {entry.score && (
-                                <p className="flex items-center font-base text-gray-900 text-sm">
-                                <ArrowBigUpDash className="w-4 h-4" />
+                                <p className="flex text-green-700 bg-green-200 px-2 py-1 rounded-full items-center font-muller font-bold text-gray-900 text-sm">
+                                <Star className="w-4 h-4 mr-1" />
                                   {entry.score}
                                 </p>
                               )}
@@ -545,8 +545,8 @@ const DistributionView = ({
                                 {entry.rop}
                               </p>
                               {entry.score && (
-                                <p className="flex items-center font-base text-gray-900 text-sm">
-                                <ArrowBigUpDash className="w-4 h-4" />
+                                <p className="flex text-green-700 bg-green-200 px-2 py-1 rounded-full items-center font-muller font-bold text-gray-900 text-sm">
+                                <Star className="w-4 h-4 mr-1" />
                                   {entry.score}
                                 </p>
                               )}
