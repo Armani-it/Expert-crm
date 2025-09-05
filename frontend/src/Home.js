@@ -1113,7 +1113,7 @@ const LeaderboardView = ({
         </div>
       </div>
 
-      <div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-3xl p-8 text-white shadow-2xl">
+      <div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-3xl p-3 md:p-8 text-white shadow-2xl">
         <div className="flex items-center justify-between mb-6">
           <div>
             <h3 className="text-2xl font-bold mb-2 flex items-center gap-3">
@@ -1743,7 +1743,7 @@ const FunnelStatCard = ({ title, count, total, icon, colorClass }) => {
 };
 
 const BreakdownList = ({ title, data }) => (
-  <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+  <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-3 md:p-8">
     <h3 className="font-bold text-xl text-gray-900 mb-6">{title}</h3>
     <div
       className="w-full"
@@ -1808,7 +1808,7 @@ const BreakdownList = ({ title, data }) => (
 );
 
 const TrialSourceChart = ({ title, data }) => (
-  <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+  <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-3 md:p-8">
     <h3 className="font-bold text-xl text-gray-900 mb-6">{title}</h3>
     <div
       className="w-full"
@@ -1955,7 +1955,7 @@ const ReachabilityChart = ({ stats }) => {
   const data = [{ name: "Доходимость", value: rate }];
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 flex flex-col items-center justify-center">
+    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-3 md:p-8 flex flex-col items-center justify-center">
       <h3 className="font-bold text-xl text-gray-900 mb-4">
         Доходимость уроков
       </h3>
@@ -2018,6 +2018,8 @@ const AnalyticsView = ({ entries, ropList }) => {
   const filteredEntries = useMemo(() => {
     const start = filters.startDate ? new Date(filters.startDate) : null;
     const end = filters.endDate ? new Date(filters.endDate) : null;
+    console.log(start);
+    console.log(end);
 
     if (start) start.setHours(0, 0, 0, 0);
     if (end) end.setHours(23, 59, 59, 999);
@@ -2033,31 +2035,31 @@ const AnalyticsView = ({ entries, ropList }) => {
   }, [entries, filters]);
 
   function getEntryDate(entry) {
-  if (entry.trialDate && entry.trialTime) {
-    // trialDate: "2025-09-02", trialTime: "16:20"
-    // Собираем ISO с оффсетом Алматы (+06:00)
-    const iso = `${entry.trialDate}T${entry.trialTime}:00+06:00`;
-    const dt = new Date(iso);
-    if (!isNaN(dt.getTime())) {
-      return dt;
+    if (entry.trialDate && entry.trialTime) {
+      // trialDate: "2025-09-02", trialTime: "16:20"
+      // Собираем ISO с оффсетом Алматы (+06:00)
+      const iso = `${entry.trialDate}T${entry.trialTime}:00+06:00`;
+      const dt = new Date(iso);
+      if (!isNaN(dt.getTime())) {
+        return dt;
+      }
     }
+
+    // fallback → createdAt (timestamp в ms или ISO)
+    return new Date(entry.createdAt);
   }
 
-  // fallback → createdAt (timestamp в ms или ISO)
-  return new Date(entry.createdAt);
-}
-
   useEffect(() => {
-    console.log("Фильтр:", filters);
-    console.log("Фильтрованные заявки:", filteredEntries.length);
-    console.log(
-      "Статусы:",
-      filteredEntries.map((e) => e.status)
-    );
-    console.log(
-      "Оплаты:",
-      filteredEntries.filter((e) => e.status === "Оплата")
-    );
+    // console.log("Фильтр:", filters);
+    // console.log("Фильтрованные заявки:", filteredEntries.length);
+    // console.log(
+    //   "Статусы:",
+    //   filteredEntries.map((e) => e.status)
+    // );
+    // console.log(
+    //   "Оплаты:",
+    //   filteredEntries.filter((e) => e.status === "Оплата")
+    // );
   }, [filteredEntries, filters]);
 
   const {
@@ -2073,6 +2075,9 @@ const AnalyticsView = ({ entries, ropList }) => {
     const paidEntries = filteredEntries.filter(
       (entry) => entry.status === "Оплата"
     );
+
+    console.log(paidEntries);
+    console.log(filteredEntries);
     const cash = paidEntries.reduce(
       (sum, entry) => sum + (Number(entry.paymentAmount) || 0),
       0
@@ -2106,7 +2111,7 @@ const AnalyticsView = ({ entries, ropList }) => {
       ["Проведен", "Оплата"].includes(e.status)
     ).length;
 
-    console.log(filteredEntries);
+    // console.log(filteredEntries);
     const funnel = {
       total: filteredEntries.length,
       conducted: conductedTrials,
@@ -2117,26 +2122,42 @@ const AnalyticsView = ({ entries, ropList }) => {
       rescheduled: filteredEntries.filter((e) => e.status === "Перенос").length,
     };
 
-    const dataByDay = {};
-    const start = new Date(filters.startDate + "T00:00:00");
-    const end = new Date(filters.endDate + "T00:00:00");
-    if (start <= end) {
-      for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-        const day = toDateString(d);
-        dataByDay[day] = { trials: 0, cash: 0 };
-      }
+  
+const toLocalDateString = (date) => {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+};
+const start = new Date(filters.startDate);
+start.setHours(0, 0, 0, 0);
+const end = new Date(filters.endDate);
+end.setHours(0, 0, 0, 0);
 
-      filteredEntries.forEach((entry) => {
-        const day = toDateString(new Date(entry.createdAt));
-        if (dataByDay[day]) {
-          dataByDay[day].trials += 1;
-          if (entry.status === "Оплата") {
-            dataByDay[day].cash += Number(entry.paymentAmount) || 0;
-          }
-        }
-      });
+const dataByDay = {};
+
+if (start <= end) {
+  for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+    const day = toLocalDateString(d);
+    dataByDay[day] = { trials: 0, cash: 0 };
+  }
+
+  filteredEntries.forEach((entry) => {
+    const entryDate = getEntryDate(entry);        // should return a Date in local time
+    entryDate.setHours(0, 0, 0, 0);               // normalize to midnight local
+    const day = toLocalDateString(entryDate);
+    if (dataByDay[day]) {
+      dataByDay[day].trials += 1;
+      if (entry.status === "Оплата") {
+        dataByDay[day].cash += Number(entry.paymentAmount) || 0;
+      }
     }
-    const sortedDays = Object.keys(dataByDay).sort();
+  });
+}
+
+const sortedDays = Object.keys(dataByDay).sort();
+console.log(dataByDay);
+
     const correlation = {
       labels: sortedDays.map((day) =>
         new Date(day + "T00:00:00").toLocaleDateString("ru-RU", {
@@ -2504,7 +2525,7 @@ const UserManagementView = ({ users, onSaveUser, onDeleteUser }) => {
   };
 
   return (
-    <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+    <div className="bg-white p-3 md:p-8 rounded-2xl shadow-sm border border-gray-100">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-gray-900">
           Управление пользователями
