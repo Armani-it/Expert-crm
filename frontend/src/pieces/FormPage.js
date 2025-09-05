@@ -116,45 +116,74 @@ const FormPage = ({
   }
 
   const handleFormSubmit = async (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
+  e.preventDefault();
+  if (isSubmitting) return;
+  setIsSubmitting(true);
 
-    const formData = new FormData(e.target);
-    const data = Object.fromEntries(formData.entries());
-    data.phone = phone;
-    data.clientName = clientName;
-    data.rop = rop;
-    data.comment = comment;
-    data.sourse = source;
-    data.score = score ? score.toString() : "";
+  // Validate ROP first (matches your existing UX)
+  if (!rop) {
+    showToast("Пожалуйста, выберите РОП", "error");
+    setIsSubmitting(false);
+    return;
+  }
 
-    if (!data.rop) {
-      showToast("Пожалуйста, выберите РОП", "error");
-      setIsSubmitting(false);
-      return;
+  // Try to get score if it's not provided yet but we do have a comment
+  let effectiveScore = score;
+  if (
+    (effectiveScore === null || effectiveScore === undefined || effectiveScore === "") &&
+    comment &&
+    comment.trim().length > 0
+  ) {
+    const description = `Имя -  ${clientName}, Источник - ${source}, ${comment || ""}`;
+    const url = `https://us-central1-akcent-academy.cloudfunctions.net/getRatingOfCard?description=${encodeURIComponent(
+      description
+    )}`;
+
+    try {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error("Failed to get rating");
+      const json = await res.json();
+      if (json && typeof json.score !== "undefined" && json.score !== null) {
+        effectiveScore = json.score;
+        setScore(json.score); // keep UI state in sync
+      }
+    } catch (err) {
+      console.warn("Не удалось получить score, продолжаем без него:", err);
     }
+  }
 
+  // Prepare payload
+  const formData = new FormData(e.target);
+  const data = Object.fromEntries(formData.entries());
+  data.phone = phone;
+  data.clientName = clientName;
+  data.rop = rop;
+  data.comment = comment;
+  data.sourse = source; // keep existing backend field name
+  data.score = effectiveScore !== null && effectiveScore !== undefined ? String(effectiveScore) : "";
+
+  try {
     await onFormSubmit(data);
 
-    fetch(
-      `https://us-central1-akcent-academy.cloudfunctions.net/deleteCard?id=${id}`
-    )
-      .then((res) => {
-        console.log(id);
-        if (!res.ok) throw new Error("Ошибка при удалении");
-        return res.json();
-      })
-      .then(() => {
-        setIsSubmitting(false);
-        e.target.reset();
-        setPhone("");
-        setShowSuccess(true);
-      })
-      .catch((error) => {
-        console.error("Ошибка удаления:", error);
-        alert("Не удалось удалить карточку");
-      });
-  };
+    // Delete the card after successful submit
+    const delRes = await fetch(
+      `https://us-central1-akcent-academy.cloudfunctions.net/deleteCard?id=${encodeURIComponent(id)}`
+    );
+    if (!delRes.ok) throw new Error("Ошибка при удалении");
+    await delRes.json();
+
+    // Reset UI
+    e.target.reset();
+    setPhone("");
+    setShowSuccess(true);
+  } catch (error) {
+    console.error("Ошибка удаления или отправки:", error);
+    // alert("Не удалось удалить карточку");
+  } finally {
+    setIsSubmitting(false);
+  }
+};
+
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);

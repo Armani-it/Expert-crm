@@ -10,6 +10,7 @@ import {
   Phone,
   MapPin,
   Mail,
+  Star,
 } from "lucide-react";
 import Modal from "./Modal"
 
@@ -168,6 +169,15 @@ const DetailsModal = ({
                     <span className="text-gray-500 block">Источник</span>
                     <p className="font-semibold text-gray-900">
                       {entry.source}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Star className="w-5 h-5 text-gray-400" />
+                  <div>
+                    <span className="text-gray-500 block">Рейтинг</span>
+                    <p className="font-semibold text-gray-900">
+                      {entry.score || 0}
                     </p>
                   </div>
                 </div>
