@@ -80,28 +80,28 @@ const initialUsers = [
     name: "Даниял",
   },
   {
-    id: "34",
+    id: "3",
     username: "akcent",
     password: "password123",
     role: "rop",
     name: "Акцент",
   },
   {
-    id: "3",
+    id: "4",
     username: "damir",
     password: "password123",
     role: "rop",
     name: "Дамир",
   },
   {
-    id: "4",
+    id: "5",
     username: "nazerke",
     password: "password123",
     role: "rop",
     name: "Назерке",
   },
   {
-    id: "5",
+    id: "6",
     username: "abylai",
     password: "password123",
     role: "rop",
@@ -109,49 +109,34 @@ const initialUsers = [
   },
   {
     id: "7",
-    username: "sayakhat",
-    password: "password123",
-    role: "rop",
-    name: "Саяхат",
-  },
-  {
-    id: "8",
     username: "madina",
     password: "password123",
     role: "rop",
     name: "Мадина",
   },
   {
-    id: "9",
+    id: "8",
     username: "aisha",
     password: "password123",
     role: "rop",
     name: "Айша",
   },
   {
-    id: "28",
+    id: "9",
     username: "togzhan",
     password: "password123",
     role: "rop",
     name: "Тоғжан",
   },
   {
-    id: "30",
-    username: "dinara",
+    id: "10",
+    username: "ernur",
     password: "password123",
     role: "rop",
-    name: "Динара",
+    name: "Ернұр",
   },
   {
-    id: "31",
-    username: "Ak",
-    password: "password123",
-    role: "rop",
-    name: "Динара",
-  },
-
-  {
-    id: "41",
+    id: "11",
     username: "1English",
     password: "password123",
     role: "rop",
@@ -159,11 +144,18 @@ const initialUsers = [
   },
 
   {
-    id: "42",
+    id: "12",
     username: "aikumis",
     password: "password123",
     role: "rop",
     name: "Айкүміс",
+  },
+  {
+    id: "13",
+    username: "nurgisa",
+    password: "password123",
+    role: "rop",
+    name: "Нұрғиса",
   },
   // Обновленный список учителей
 
@@ -180,7 +172,7 @@ const initialUsers = [
   // Жанаргүль -
 
   {
-    id: "33",
+    id: "14",
     username: "sabina",
     password: "password123",
     role: "teacher",
@@ -188,7 +180,7 @@ const initialUsers = [
     number: "87762962000",
   },
   {
-    id: "16",
+    id: "15",
     username: "gaziza",
     password: "password123",
     role: "teacher",
@@ -196,7 +188,7 @@ const initialUsers = [
     number: "87055003105",
   },
   {
-    id: "18",
+    id: "16",
     username: "dana",
     password: "password123",
     role: "teacher",
@@ -204,7 +196,7 @@ const initialUsers = [
     number: "87765218045",
   },
   {
-    id: "10",
+    id: "17",
     username: "qymbat",
     password: "password123",
     role: "teacher",
@@ -212,7 +204,7 @@ const initialUsers = [
     number: "87785151397",
   },
   {
-    id: "15",
+    id: "18",
     username: "nursulu",
     password: "password123",
     role: "teacher",
@@ -220,7 +212,7 @@ const initialUsers = [
     number: "87473715323",
   },
   {
-    id: "34",
+    id: "19",
     username: "nazerke_kaldaeva",
     password: "password123",
     role: "teacher",
@@ -228,7 +220,7 @@ const initialUsers = [
     number: "87073609961",
   },
   {
-    id: "13",
+    id: "20",
     username: "nurqabyl",
     password: "password123",
     role: "teacher",
@@ -236,7 +228,7 @@ const initialUsers = [
     number: "87051115660",
   },
   {
-    id: "22",
+    id: "21",
     username: "dinaraTeach",
     password: "password123",
     role: "teacher",
@@ -244,7 +236,7 @@ const initialUsers = [
     number: "87054458653",
   },
   {
-    id: "11",
+    id: "22",
     username: "dilnaz",
     password: "password123",
     role: "teacher",
@@ -252,7 +244,7 @@ const initialUsers = [
     number: "87009622137",
   },
   {
-    id: "35",
+    id: "23",
     username: "aizhan",
     password: "password123",
     role: "teacher",
@@ -260,7 +252,7 @@ const initialUsers = [
     number: "87001125381",
   },
   {
-    id: "21",
+    id: "24",
     username: "zhanargul",
     password: "password123",
     role: "teacher",
@@ -269,22 +261,40 @@ const initialUsers = [
   },
   
   {
-    id: "36",
+    id: "25",
     username: "erkemai",
     password: "password123",
     role: "teacher",
     name: "Еркемай",
     number: "",
   },
+  {
+    id: "26",
+    username: "tomiris",
+    password: "password123",
+    role: "teacher",
+    name: "Томирис",
+    number: "",
+  },
 
   {
-    id: "32",
+    id: "28",
+    username: "elnur",
+    password: "password123",
+    role: "teacher",
+    name: "Элнур",
+    number: "",
+  },
+
+  {
+    id: "27",
     username: "primoy",
     password: "password123",
     role: "teacher",
     name: "Прямой",
     number: "",
   },
+
 ];
 
 const ALL_SOURCES = [
